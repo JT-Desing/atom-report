@@ -662,10 +662,14 @@
     .export-option { border: 1px solid var(--line); border-radius: 16px; padding: 22px; background: var(--surface-soft); }
     .export-option h4 { margin: 0 0 7px; font-size: 14px; }
     .export-option p { color: var(--muted); font-size: 11px; line-height: 1.55; min-height: 52px; }
+    .agent-snapshot { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 10px; }
+    .agent-snapshot div { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+    .agent-snapshot span { display: block; color: var(--muted); font-size: 9px; font-weight: 700; }
+    .agent-snapshot strong { display: block; margin-top: 8px; font-size: 21px; }
     @keyframes pageIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
     body.dark .sidebar { background: var(--surface); }
     body.dark .hero { background: linear-gradient(135deg, #111214, #24262a 70%, #611125); }
-    @media (max-width: 980px) { .page-grid.two, .export-center { grid-template-columns: 1fr; } }
+    @media (max-width: 980px) { .page-grid.two, .export-center { grid-template-columns: 1fr; } .agent-snapshot { grid-template-columns: repeat(2,minmax(0,1fr)); } }
     @media (max-width: 700px) { .source-strip { align-items: flex-start; flex-direction: column; } .top-actions { flex-wrap: wrap; } .page-header h3 { font-size: 19px; } }
   </style>
 </head>
@@ -716,8 +720,8 @@
       </header>
 
       <div class="source-strip" role="status" aria-live="polite">
-        <span><strong>Fuente de datos:</strong> <span id="sourceDescription">muestra demostrativa local</span></span>
-        <span class="source-state" id="sourceState">Modo demo · sin datos sensibles</span>
+        <span><strong>Fuente de datos:</strong> <span id="sourceDescription">reportes PDF de ATOM · semana 6–9 jul 2026</span></span>
+        <span class="source-state live" id="sourceState">Datos estáticos · 6 reportes</span>
       </div>
 
       <section class="filter-shell" aria-label="Filtros del reporte">
@@ -802,7 +806,7 @@
             <div class="panel-head"><div><h3>Rendimiento por agente</h3><p>Productividad, cobertura, tipificación y cumplimiento del SLA</p></div><button class="secondary-btn" id="sortAgentsBtn">Ordenar por SLA</button></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Agente</th><th>Conversaciones</th><th>Con mensaje</th><th>Tipificadas</th><th>SLA</th><th>1.ª respuesta</th><th>Estado</th></tr></thead>
+                <thead><tr><th>Agente</th><th>Asignadas</th><th>Con mensaje</th><th>Tipificadas</th><th>SLA</th><th>1.ª respuesta</th><th>Respuesta total</th><th>Estado</th></tr></thead>
                 <tbody id="agentTable"></tbody>
               </table>
             </div>
@@ -927,7 +931,43 @@
       return rows;
     }
 
-    let DATA = [...buildHistory(), ...buildCurrentWeek()];
+    const PDF_DAILY = [
+      {key:'2026-07-06',count:99,sla:66}, {key:'2026-07-07',count:103,sla:48},
+      {key:'2026-07-08',count:109,sla:55}, {key:'2026-07-09',count:139,sla:55}
+    ];
+    const PDF_AGENT_STATS = [
+      ['Judy Carolina Tovar',43,27.9,97.7,16,2.57,1.68,'Grupo 7 - Actualización de Datos'],
+      ['Arnaldo Andrés Julio Yaguna',37,70.3,100,35,3.72,1.94,'Grupo 6 - Monitoreo de Clientes'],
+      ['Jenny Gomez',33,78.8,100,48,1.37,1.67,'Grupo 6 - Monitoreo de Clientes'],
+      ['Carolina Villamil Hernandez',32,100,100,81,1.87,1.12,'Grupo no visible'],
+      ['Jesus David Gonzalez',32,100,100,81,2.78,1.50,'Grupo no visible'],
+      ['Carolina Euse Martinez',29,100,100,72,2.43,3.08,'Grupo no visible'],
+      ['Carolina Castaño Mesa',25,52,56,8,8.28,3.03,'Grupo no visible'],
+      ['Alejandra Villa',13,92.3,100,77,2.05,3.30,'Grupo 7 - Actualización de Datos'],
+      ['Juan Pablo Alvarez Gallego',13,61.5,100,0,null,0.52,'Grupo 8 - Monitoreo de Transacciones'],
+      ['Johan Karl Orlas Munera',13,61.5,100,31,2.52,1.72,'Grupo 6 - Monitoreo de Clientes'],
+      ['Tatiana Giraldo Cañas',8,100,50,88,1.12,7.72,'Grupo no visible'],
+      ['Alejandra Taborda Henao',7,100,100,29,3.10,3.57,'Grupo no visible'],
+      ['Vanesa Patiño',5,80,100,60,1.43,1.60,'Grupo 7 - Actualización de Datos'],
+      ['Wendy Vanesa Ortega',4,0,100,0,null,null,'Grupo 8 - Monitoreo de Transacciones'],
+      ['Laura Valeria de la Hoz',2,50,100,0,null,9.09,'Grupo 8 - Monitoreo de Transacciones'],
+      ['Otros 17 agentes',154,98.1,94.8,75,1.42,null,'Otros grupos']
+    ].map(([agent,assigned,messagePct,typedPct,slaPct,firstResponse,responseTotal,group],index)=>({
+      id:`PDF-${index+1}`, date:'2026-07-09', hour:12, schedule:'in', channel:'No disponible', origin:'PDF ATOM',
+      group, agent, category:'Atención de agentes', type:'Resumen agregado', sale:0, status:'Corte estático',
+      assigned, messagePct, typedPct, slaPct, firstResponse, responseTotal, aggregate:agent.startsWith('Otros ')
+    }));
+    const PDF_GROUP_STATS = [
+      ['Grupo 5 - Soporte y Servicio al Cliente',212,100,100,80,2.07,2.02,16,3.3],
+      ['Grupo 6 - Monitoreo de Clientes',94,72.3,100,39,2.68,1.81,32,1.1],
+      ['Grupo 7 - Actualización de Datos',65,49.2,98.5,35,2.10,2.59,48,1.5],
+      ['Grupo 1 - Team Comercial KAMs Digital',36,61.1,52.8,19,2.08,3.03,14,8.3],
+      ['Grupo 8 - Monitoreo de Transacciones',19,47.4,100,0,null,0.83,0,0],
+      ['Grupo 12 - Leads sin propietario CRM',8,100,62.5,63,2.85,1.93,0,0],
+      ['Grupo 4 - Certificaciones',4,100,100,50,1.13,0.85,null,null]
+    ];
+    let DATA_MODE = 'pdf';
+    let DATA = PDF_AGENT_STATS;
     let filtered = [];
     let trendMode = "day";
     let sortBySla = false;
@@ -937,9 +977,16 @@
     const formatDate = value => new Intl.DateTimeFormat("es-CO", {day:"numeric", month:"short"}).format(new Date(value+"T12:00:00"));
 
     function populateAgents() {
-      const select = $("agentFilter");
-      select.innerHTML = '<option value="all">Todos los agentes</option>';
-      [...new Set(DATA.map(r => r.agent).filter(Boolean))].sort().forEach(a => { const o = document.createElement("option"); o.textContent = a; select.appendChild(o); });
+      const fill = (id,label,values) => {
+        const select=$(id); select.innerHTML=`<option value="all">${label}</option>`;
+        [...new Set(values.filter(Boolean))].sort().forEach(value=>{const option=document.createElement('option');option.textContent=value;select.appendChild(option);});
+      };
+      fill('agentFilter','Todos los agentes',DATA.filter(r=>!r.aggregate).map(r=>r.agent));
+      fill('groupFilter','Todos los grupos',DATA.map(r=>r.group));
+      fill('channelFilter','Todos los canales',DATA_MODE==='pdf'?[]:DATA.map(r=>r.channel));
+      const typeSelect=$("typeFilter");
+      if(DATA_MODE==='pdf') { typeSelect.innerHTML='<option value="all">No disponible en PDF</option>'; typeSelect.disabled=true; }
+      else { typeSelect.disabled=false; fill('typeFilter','Todas',DATA.map(r=>r.type)); }
     }
 
     function parseCSV(text) {
@@ -998,6 +1045,7 @@
     function useCSV(text, sourceName) {
       const rows = normalizeRows(parseCSV(text));
       if (!rows.length) throw new Error('No se encontraron filas válidas. Revisa los encabezados y el formato de fecha AAAA-MM-DD.');
+      DATA_MODE = 'csv';
       DATA = rows;
       NOW = new Date(Math.max(...rows.map(r => new Date(r.date + 'T12:00:00').getTime())));
       populateAgents();
@@ -1057,6 +1105,17 @@
     }
 
     function metrics(rows) {
+      if (DATA_MODE === 'pdf') {
+        const total=rows.reduce((sum,row)=>sum+row.assigned,0);
+        const messages=Math.round(rows.reduce((sum,row)=>sum+row.assigned*row.messagePct/100,0));
+        const typed=Math.round(rows.reduce((sum,row)=>sum+row.assigned*row.typedPct/100,0));
+        const sla=Math.round(rows.reduce((sum,row)=>sum+row.assigned*row.slaPct/100,0));
+        const frtRows=rows.filter(row=>Number.isFinite(row.firstResponse));
+        const frtWeight=frtRows.reduce((sum,row)=>sum+row.assigned,0);
+        const avgFrt=frtWeight?frtRows.reduce((sum,row)=>sum+row.assigned*row.firstResponse,0)/frtWeight:0;
+        if(rows.length===DATA.length) return {total:450,messages:369,typed:426,sales:0,sla:252,avgFrt:2.3,messagePct:82,typedPct:95,slaPct:56};
+        return {total,messages,typed,sales:0,sla,avgFrt,messagePct:pct(messages,total),typedPct:pct(typed,total),slaPct:pct(sla,total)};
+      }
       const total = rows.length;
       const messages = rows.filter(r=>r.agentMessage).length;
       const typed = rows.filter(r=>r.typed).length;
@@ -1103,7 +1162,7 @@
 
     function renderTrend() {
       const svg = $("trendChart");
-      const items = groupTrend(filtered, trendMode);
+      const items = DATA_MODE==='pdf' ? (trendMode==='day' && filtered.length===DATA.length ? PDF_DAILY : []) : groupTrend(filtered, trendMode);
       const W=820,H=285, left=45,right=35,top=25,bottom=42, base=H-bottom;
       const plotW=W-left-right, plotH=base-top;
       const maxCount = Math.max(5,...items.map(x=>x.count));
@@ -1134,15 +1193,15 @@
         html += `<path class="line-area" d="${area}"/><path class="line-path" d="${path}"/>`;
         points.forEach(([x,y,it])=> html += `<circle class="line-dot data-hover" data-tip="SLA: ${it.sla}%" cx="${x}" cy="${y}" r="4"/>`);
       }
-      if (!items.length) html += `<text x="410" y="140" text-anchor="middle" class="axis-label" style="font-size:13px">No hay datos para los filtros seleccionados</text>`;
+      if (!items.length) html += `<text x="410" y="140" text-anchor="middle" class="axis-label" style="font-size:13px">${DATA_MODE==='pdf'?'El PDF no expone este desglose como datos tabulares':'No hay datos para los filtros seleccionados'}</text>`;
       svg.innerHTML=html;
       attachTooltips();
     }
 
     function renderDonut() {
       const typedRows = filtered.filter(r=>r.typed);
-      const counts = TYPES.reduce((o,t)=>(o[t]=typedRows.filter(r=>r.type===t).length,o),{});
-      const total=typedRows.length;
+      const counts = DATA_MODE==='pdf' && filtered.length===DATA.length ? {'Seguimiento':23,'Fin positivo':365,'Fin negativo':38} : TYPES.reduce((o,t)=>(o[t]=typedRows.filter(r=>r.type===t).length,o),{});
+      const total=DATA_MODE==='pdf' && filtered.length===DATA.length ? 426 : typedRows.length;
       let acc=0, parts=[];
       TYPES.forEach(t=>{ const p=total?counts[t]/total*100:0; parts.push(`${COLORS[t]} ${acc}% ${acc+p}%`); acc+=p; });
       $("donut").style.background = total ? `conic-gradient(${parts.join(',')})` : `conic-gradient(#e5ebe7 0 100%)`;
@@ -1151,6 +1210,7 @@
     }
 
     function renderChannels() {
+      if(DATA_MODE==='pdf') { $("channelList").innerHTML='<div style="padding:28px;text-align:center;color:var(--muted);font-size:11px">Los reportes suministrados no muestran la distribución consolidada por canal.</div>'; return; }
       const total=filtered.length;
       $("channelList").innerHTML=CHANNELS.map((c,i)=>{
         const count=filtered.filter(r=>r.channel===c).length, p=pct(count,total);
@@ -1160,9 +1220,10 @@
     }
 
     function agentStats() {
+      if(DATA_MODE==='pdf') return filtered.filter(row=>!row.aggregate).map(row=>({agent:row.agent,total:row.assigned,messagePct:row.messagePct,typedPct:row.typedPct,slaPct:row.slaPct,avgFrt:row.firstResponse,responseTotal:row.responseTotal,group:row.group})).sort((a,b)=>sortBySla?b.slaPct-a.slaPct:b.total-a.total);
       return [...new Set(filtered.map(r=>r.agent).filter(Boolean))].map(a=>{
         const rows=filtered.filter(r=>r.agent===a), m=metrics(rows);
-        return {agent:a,...m};
+        return {agent:a,responseTotal:null,group:'',...m};
       }).filter(x=>x.total>0).sort((a,b)=>sortBySla?b.slaPct-a.slaPct:b.total-a.total);
     }
 
@@ -1170,11 +1231,14 @@
       $("agentTable").innerHTML=agentStats().map((a,i)=>{
         const safeName=escapeHTML(a.agent), avatar=agentAvatar(a.agent);
         const status=a.slaPct>=80?["good","Óptimo"]:a.slaPct>=50?["warn","Atención"]:["bad","Crítico"];
-        return `<tr><td><div class="agent"><div class="avatar"><img src="${avatar}" alt="Perfil de ${safeName}"></div><div><strong>${safeName}</strong><span>${i<2?'Disponible':'En operación'}</span></div></div></td><td><b>${a.total}</b></td><td>${a.messagePct}%</td><td>${a.typedPct}%</td><td><b>${a.slaPct}%</b></td><td>${a.avgFrt.toFixed(1)} min</td><td><span class="pill ${status[0]}">${status[1]}</span></td></tr>`;
-      }).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">No hay agentes con datos en este periodo.</td></tr>`;
+        const firstResponse=Number.isFinite(a.avgFrt)?`${a.avgFrt.toFixed(2)} min`:'Sin dato';
+        const responseTotal=Number.isFinite(a.responseTotal)?`${a.responseTotal.toFixed(2)} min`:'Sin dato';
+        return `<tr><td><div class="agent"><div class="avatar"><img src="${avatar}" alt="Perfil de ${safeName}"></div><div><strong>${safeName}</strong><span>${escapeHTML(a.group||'Registro cargado')}</span></div></div></td><td><b>${a.total}</b></td><td>${a.messagePct}%</td><td>${a.typedPct}%</td><td><b>${a.slaPct}%</b></td><td>${firstResponse}</td><td>${responseTotal}</td><td><span class="pill ${status[0]}">${status[1]}</span></td></tr>`;
+      }).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">No hay agentes con datos en este periodo.</td></tr>`;
     }
 
     function renderHeatmap() {
+      if(DATA_MODE==='pdf') { $("heatmap").innerHTML='<div style="grid-column:1/-1;padding:36px;text-align:center;color:var(--muted);font-size:11px">El PDF contiene una gráfica horaria, pero no expone una matriz completa para reconstruir este mapa sin estimaciones.</div>'; return; }
       const hours=[8,9,10,11,12,13,14,15,16,17];
       const days=["Lun","Mar","Mié","Jue","Vie"];
       let html='<div></div>'+hours.map(h=>`<div class="hlabel">${h}:00</div>`).join('');
@@ -1189,6 +1253,18 @@
         });
       });
       $("heatmap").innerHTML=html;
+    }
+
+    function renderGroups() {
+      const snapshot=metrics(filtered);
+      $("agentSnapshotTotal").textContent=snapshot.total;
+      $("agentSnapshotMessage").textContent=snapshot.messagePct+'%';
+      $("agentSnapshotTyped").textContent=snapshot.typedPct+'%';
+      $("agentSnapshotSla").textContent=snapshot.slaPct+'%';
+      $("agentSnapshotFrt").textContent=snapshot.avgFrt.toFixed(1)+' min';
+      const body=$("groupTable"); if(!body) return;
+      if(DATA_MODE!=='pdf') { body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:26px">El resumen detallado por grupos está disponible en el corte estático de los PDF.</td></tr>'; return; }
+      body.innerHTML=PDF_GROUP_STATS.map(([group,assigned,message,typed,sla,first,total,reassignment,abandonment])=>`<tr><td><strong>${escapeHTML(group)}</strong></td><td><b>${assigned}</b></td><td>${message}%</td><td>${typed}%</td><td><b>${sla}%</b></td><td>${Number.isFinite(first)?first.toFixed(2)+' min':'Sin dato'}</td><td>${Number.isFinite(total)?total.toFixed(2)+' min':'Sin dato'}</td><td>${Number.isFinite(reassignment)?reassignment+'%':'Sin dato'}</td><td>${Number.isFinite(abandonment)?abandonment+'%':'Sin dato'}</td></tr>`).join('');
     }
 
     function renderActions() {
@@ -1213,10 +1289,10 @@
         ["Agente", $("agentFilter").selectedOptions[0].text],
         ["Tipificación", $("typeFilter").selectedOptions[0].text]
       ];
-      $("activeFilters").innerHTML=pairs.filter(([,v])=>!v.startsWith('Todos')&&!v.startsWith('Todas')).map(([k,v])=>`<span class="chip">${k}: ${v}</span>`).join('');
+      $("activeFilters").innerHTML=pairs.filter(([,v])=>!v.startsWith('Todos')&&!v.startsWith('Todas')&&!v.startsWith('No disponible')).map(([k,v])=>`<span class="chip">${k}: ${v}</span>`).join('');
     }
 
-    function renderAll() { renderKPIs(); renderTrend(); renderDonut(); renderChannels(); renderAgents(); renderHeatmap(); renderActions(); }
+    function renderAll() { renderKPIs(); renderTrend(); renderDonut(); renderChannels(); renderAgents(); renderGroups(); renderHeatmap(); renderActions(); }
 
     function attachTooltips() {
       const tip=$("chartTooltip");
@@ -1234,6 +1310,9 @@
         $("modalBody").innerHTML=`<p style="font-size:12px;line-height:1.6;color:var(--muted)">Este prototipo espera una tabla con una fila por conversación. Los campos mínimos recomendados son:</p><div class="table-wrap"><table><thead><tr><th>Campo</th><th>Uso</th></tr></thead><tbody>${['fecha_asignacion','hora_asignacion','horario_laboral','canal','tipo_origen','grupo','agente','grupo_tipificacion','tipificacion','categoria','con_mensaje_agente','venta','cumple_sla','tiempo_primera_respuesta'].map(f=>`<tr><td><code>${f}</code></td><td>Alimenta filtros, KPI o desgloses del dashboard.</td></tr>`).join('')}</tbody></table></div>`;
       } else if(type==='actions') {
         $("modalBody").innerHTML=$("actionsList").innerHTML;
+      } else if(DATA_MODE==='pdf') {
+        const rows=agentStats();
+        $("modalBody").innerHTML=`<div class="table-wrap"><table><thead><tr><th>Agente</th><th>Asignadas</th><th>Con mensaje</th><th>Tipificadas</th><th>SLA</th><th>1.ª respuesta</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${escapeHTML(r.agent)}</td><td>${r.total}</td><td>${r.messagePct}%</td><td>${r.typedPct}%</td><td>${r.slaPct}%</td><td>${Number.isFinite(r.avgFrt)?r.avgFrt.toFixed(2)+' min':'Sin dato'}</td></tr>`).join('')}</tbody></table></div><p style="color:var(--muted);font-size:10px">Corte estático reconstruido de los reportes PDF suministrados.</p>`;
       } else {
         const predicate={message:r=>r.agentMessage,typed:r=>r.typed,sales:r=>r.sale>0,sla:r=>r.sla,frt:r=>true,assigned:r=>true}[type]||(()=>true);
         const rows=filtered.filter(predicate).slice(0,50);
@@ -1263,6 +1342,8 @@
 
       const performancePage = makePage('performance','Rendimiento','Volumen, SLA y carga operativa','Analiza tendencias y franjas críticas sin mezclar información de agentes o canales.',[trendPanel,heatmapPanel]);
       const agentsPage = makePage('agents','Agentes','Desempeño individual del equipo','Compara productividad, cobertura, tipificación, SLA y primera respuesta por agente.',[agentsPanel]);
+      agentsPage.querySelector('.page-grid').insertAdjacentHTML('afterbegin','<div class="agent-snapshot"><div><span>Conversaciones asignadas</span><strong id="agentSnapshotTotal">450</strong></div><div><span>Con mensaje de agente</span><strong id="agentSnapshotMessage">82%</strong></div><div><span>Tipificadas</span><strong id="agentSnapshotTyped">95%</strong></div><div><span>Nivel de servicio</span><strong id="agentSnapshotSla">56%</strong></div><div><span>Primera respuesta</span><strong id="agentSnapshotFrt">2.3 min</strong></div></div>');
+      agentsPage.querySelector('.page-grid').insertAdjacentHTML('beforeend','<article class="panel"><div class="panel-head"><div><h3>Rendimiento por grupos</h3><p>Volumen, cobertura, SLA y tiempos visibles en los reportes suministrados</p></div><span class="pill good">Corte estático</span></div><div class="table-wrap"><table><thead><tr><th>Grupo</th><th>Asignadas</th><th>Con mensaje</th><th>Tipificadas</th><th>SLA</th><th>1.ª respuesta</th><th>Respuesta total</th><th>Reasignación</th><th>Abandono</th></tr></thead><tbody id="groupTable"></tbody></table></div></article>');
       const typificationsPage = makePage('typifications','Tipificaciones','Calidad y resultado de las gestiones','Revisa seguimientos, cierres positivos y cierres negativos del periodo.',[typificationsPanel]);
       const channelsPage = makePage('channels','Canales','Distribución de la atención','Identifica qué canales concentran el volumen y requieren mayor capacidad.',[channelsPanel]);
       const exportsPage = makePage('exports','Exportaciones','Gestiona las fuentes y salidas del reporte','Carga una exportación de ATOM o descarga el resultado filtrado.',[]);
@@ -1288,6 +1369,13 @@
     }
 
     function exportCSV() {
+      if(DATA_MODE==='pdf') {
+        const headers=['agente','grupo','conversaciones_asignadas','con_mensaje_pct','tipificadas_pct','nivel_servicio_pct','primera_respuesta_min','respuesta_total_min'];
+        const lines=[headers.join(',')];
+        agentStats().forEach(r=>lines.push([r.agent,r.group,r.total,r.messagePct,r.typedPct,r.slaPct,r.avgFrt??'',r.responseTotal??''].map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')));
+        const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+        a.href=url;a.download='atom_atencion_agentes_estatico.csv';a.click();URL.revokeObjectURL(url);toast('Resumen de agentes exportado');return;
+      }
       const headers=["id","fecha_asignacion","hora","horario_laboral","canal","tipo_origen","grupo","agente","categoria","tipificacion","con_mensaje_agente","venta","cumple_sla","tiempo_primera_respuesta","estado"];
       const lines=[headers.join(',')];
       filtered.forEach(r=>lines.push([r.id,r.date,r.hour,r.schedule,r.channel,r.origin,r.group,r.agent,r.category,r.type,r.agentMessage,r.sale,r.sla,r.firstResponse,r.status].map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')));
