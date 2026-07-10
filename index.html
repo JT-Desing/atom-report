@@ -91,6 +91,7 @@
       box-shadow: 0 8px 20px rgba(200, 16, 46, .2);
       font-weight: 800;
     }
+    .brand-logo { width: 44px; height: 44px; object-fit: contain; flex: 0 0 auto; filter: drop-shadow(0 7px 12px rgba(0,0,0,.14)); }
     .brand h1 { font-size: 15px; margin: 0; line-height: 1.1; }
     .brand p { font-size: 11px; color: var(--muted); margin: 4px 0 0; }
 
@@ -514,7 +515,8 @@
     td { padding: 12px 8px; border-bottom: 1px solid var(--line); font-size: 10px; }
     tr:last-child td { border-bottom: 0; }
     .agent { display: flex; align-items: center; gap: 8px; }
-    .avatar { width: 29px; height: 29px; border-radius: 9px; display: grid; place-items: center; font-size: 9px; font-weight: 800; color: #fff; background: linear-gradient(135deg, var(--brand), var(--lime)); }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; flex: 0 0 auto; background: var(--surface-soft); border: 2px solid var(--line); }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .agent strong { display: block; font-size: 10px; }
     .agent span { display: block; color: var(--muted); font-size: 8px; margin-top: 2px; }
     .pill { border-radius: 999px; padding: 5px 7px; font-size: 8px; font-weight: 800; display: inline-block; }
@@ -646,16 +648,32 @@
     .upload-label { display: inline-flex; align-items: center; gap: 7px; }
     .kpi:focus-visible, button:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid rgba(200,16,46,.25); outline-offset: 2px; }
     .kpi { cursor: pointer; }
+    .section-kicker, #dashboardContent { display: none; }
+    .page-view { display: none; animation: pageIn .24s ease; }
+    .page-view.active { display: block; }
+    .page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin: 24px 0 14px; }
+    .page-header span { color: var(--brand); font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    .page-header h3 { margin: 5px 0 0; font-size: 22px; letter-spacing: -.025em; }
+    .page-header p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+    .page-grid { display: grid; gap: 16px; }
+    .page-grid.two { grid-template-columns: minmax(0,1.6fr) minmax(300px,.8fr); align-items: start; }
+    .summary-actions { margin-top: 16px; }
+    .export-center { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .export-option { border: 1px solid var(--line); border-radius: 16px; padding: 22px; background: var(--surface-soft); }
+    .export-option h4 { margin: 0 0 7px; font-size: 14px; }
+    .export-option p { color: var(--muted); font-size: 11px; line-height: 1.55; min-height: 52px; }
+    @keyframes pageIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
     body.dark .sidebar { background: var(--surface); }
     body.dark .hero { background: linear-gradient(135deg, #111214, #24262a 70%, #611125); }
-    @media (max-width: 700px) { .source-strip { align-items: flex-start; flex-direction: column; } .top-actions { flex-wrap: wrap; } }
+    @media (max-width: 980px) { .page-grid.two, .export-center { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { .source-strip { align-items: flex-start; flex-direction: column; } .top-actions { flex-wrap: wrap; } .page-header h3 { font-size: 19px; } }
   </style>
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark">A</div>
+        <img class="brand-logo" src="assets/logo-epayco.png" alt="ePayco" />
         <div class="brand-copy"><h1>ATOM REPORT</h1><p>Centro de control operativo</p></div>
       </div>
 
@@ -671,7 +689,7 @@
         <a href="#agents" data-nav="agents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Agentes</span></a>
         <a href="#typifications" data-nav="typifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41 11 3.83V3H4v7h.83l9.58 9.59a2 2 0 0 0 2.82 0l3.36-3.36a2 2 0 0 0 0-2.82Z"/><circle cx="7.5" cy="6.5" r="1.2"/></svg><span>Tipificaciones</span></a>
         <a href="#channels" data-nav="channels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg><span>Canales</span></a>
-        <a href="#" id="exportNav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg><span>Exportaciones</span></a>
+        <a href="#exports" id="exportNav" data-nav="exports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg><span>Exportaciones</span></a>
       </nav>
 
       <div class="upgrade">
@@ -730,7 +748,8 @@
       </section>
 
       <div class="section-kicker">01 · Salud y disponibilidad</div>
-      <section id="overview">
+      <section id="overview" class="page-view active" aria-labelledby="overviewTitle">
+        <div class="page-header"><div><span>Resumen</span><h3 id="overviewTitle">Estado general de la operación</h3><p>Salud, indicadores críticos y acciones prioritarias en una sola vista.</p></div></div>
         <div class="overview-grid">
           <article class="hero">
             <div class="hero-content">
@@ -769,7 +788,7 @@
       </section>
 
       <div class="section-kicker">02 · Rendimiento, volumen y riesgo</div>
-      <section class="dashboard-grid" id="performance">
+      <section class="dashboard-grid" id="dashboardContent">
         <div class="stack">
           <article class="panel">
             <div class="panel-head">
@@ -947,6 +966,15 @@
 
     const asBool = value => ['1','true','sí','si','yes','y','cumple'].includes(String(value).trim().toLowerCase());
     const safeText = value => String(value ?? '').trim().replace(/[<>&]/g, '');
+    const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const FEMININE_NAMES = new Set(['adriana','alejandra','alicia','ana','andrea','angela','beatriz','camila','carolina','catalina','claudia','daniela','diana','elena','gabriela','isabel','juliana','laura','lucia','luisa','marcela','maria','mariana','monica','natalia','paola','patricia','sandra','sofia','valentina','vanessa','veronica']);
+    const MASCULINE_A_ENDINGS = new Set(['andrea','bautista','borja','elias','garcia','luca','nicolas']);
+
+    function agentAvatar(name) {
+      const firstName = String(name || '').trim().split(/\s+/)[0].normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+      const usesWomanAvatar = FEMININE_NAMES.has(firstName) || (firstName.endsWith('a') && !MASCULINE_A_ENDINGS.has(firstName));
+      return usesWomanAvatar ? 'assets/agent-woman.png' : 'assets/agent-man.png';
+    }
 
     function normalizeRows(records) {
       return records.map((r, index) => {
@@ -1143,9 +1171,9 @@
 
     function renderAgents() {
       $("agentTable").innerHTML=agentStats().map((a,i)=>{
-        const initials=a.agent.split(' ').map(x=>x[0]).slice(0,2).join('');
+        const safeName=escapeHTML(a.agent), avatar=agentAvatar(a.agent);
         const status=a.slaPct>=80?["good","Óptimo"]:a.slaPct>=50?["warn","Atención"]:["bad","Crítico"];
-        return `<tr><td><div class="agent"><div class="avatar">${initials}</div><div><strong>${a.agent}</strong><span>${i<2?'Disponible':'En operación'}</span></div></div></td><td><b>${a.total}</b></td><td>${a.messagePct}%</td><td>${a.typedPct}%</td><td><b>${a.slaPct}%</b></td><td>${a.avgFrt.toFixed(1)} min</td><td><span class="pill ${status[0]}">${status[1]}</span></td></tr>`;
+        return `<tr><td><div class="agent"><div class="avatar"><img src="${avatar}" alt="Perfil de ${safeName}"></div><div><strong>${safeName}</strong><span>${i<2?'Disponible':'En operación'}</span></div></div></td><td><b>${a.total}</b></td><td>${a.messagePct}%</td><td>${a.typedPct}%</td><td><b>${a.slaPct}%</b></td><td>${a.avgFrt.toFixed(1)} min</td><td><span class="pill ${status[0]}">${status[1]}</span></td></tr>`;
       }).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">No hay agentes con datos en este periodo.</td></tr>`;
     }
 
@@ -1217,6 +1245,51 @@
       $("modalBackdrop").classList.add('open');
     }
 
+    function setupPages() {
+      const source = $("dashboardContent");
+      const stacks = source.querySelectorAll(':scope > .stack');
+      const leftPanels = stacks[0].querySelectorAll(':scope > .panel');
+      const rightPanels = stacks[1].querySelectorAll(':scope > .panel');
+      const [trendPanel, agentsPanel, heatmapPanel] = leftPanels;
+      const [typificationsPanel, channelsPanel, actionsPanel] = rightPanels;
+      [agentsPanel, typificationsPanel, channelsPanel].forEach(panel => panel.removeAttribute('id'));
+
+      const makePage = (id, eyebrow, title, description, panels, layout='') => {
+        const section = document.createElement('section');
+        section.id = id;
+        section.className = 'page-view';
+        section.setAttribute('aria-labelledby', `${id}Title`);
+        section.innerHTML = `<div class="page-header"><div><span>${eyebrow}</span><h3 id="${id}Title">${title}</h3><p>${description}</p></div></div><div class="page-grid ${layout}"></div>`;
+        panels.forEach(panel => section.querySelector('.page-grid').appendChild(panel));
+        return section;
+      };
+
+      const performancePage = makePage('performance','Rendimiento','Volumen, SLA y carga operativa','Analiza tendencias y franjas críticas sin mezclar información de agentes o canales.',[trendPanel,heatmapPanel]);
+      const agentsPage = makePage('agents','Agentes','Desempeño individual del equipo','Compara productividad, cobertura, tipificación, SLA y primera respuesta por agente.',[agentsPanel]);
+      const typificationsPage = makePage('typifications','Tipificaciones','Calidad y resultado de las gestiones','Revisa seguimientos, cierres positivos y cierres negativos del periodo.',[typificationsPanel]);
+      const channelsPage = makePage('channels','Canales','Distribución de la atención','Identifica qué canales concentran el volumen y requieren mayor capacidad.',[channelsPanel]);
+      const exportsPage = makePage('exports','Exportaciones','Gestiona las fuentes y salidas del reporte','Carga una exportación de ATOM o descarga el resultado filtrado.',[]);
+      exportsPage.querySelector('.page-grid').innerHTML = `<article class="panel export-center"><div class="export-option"><h4>Cargar información de ATOM</h4><p>Procesa un CSV en este navegador. El archivo no se publica ni se envía a un servidor.</p><button class="secondary-btn" id="uploadPageBtn">↑ Seleccionar CSV</button></div><div class="export-option"><h4>Exportar vista filtrada</h4><p>Descarga únicamente los registros que cumplen los filtros activos del reporte.</p><button class="primary-btn" id="exportPageBtn">⇩ Descargar CSV</button></div></article>`;
+
+      const actionsWrap = document.createElement('div');
+      actionsWrap.className = 'summary-actions';
+      actionsWrap.appendChild(actionsPanel);
+      $("overview").appendChild(actionsWrap);
+      [performancePage,agentsPage,typificationsPage,channelsPage,exportsPage].forEach(page => source.before(page));
+      source.remove();
+    }
+
+    const PAGE_TITLES = {overview:'Centro de control de atención',performance:'Rendimiento operativo',agents:'Desempeño por agente',typifications:'Análisis de tipificaciones',channels:'Análisis por canal',exports:'Exportaciones de datos'};
+
+    function activatePage(pageId, updateHash=true) {
+      const target = $(pageId) || $("overview");
+      document.querySelectorAll('.page-view').forEach(page => page.classList.toggle('active', page === target));
+      document.querySelectorAll('.nav a[data-nav]').forEach(link => link.classList.toggle('active', link.dataset.nav === target.id));
+      document.querySelector('.hello h2').textContent = PAGE_TITLES[target.id] || PAGE_TITLES.overview;
+      if (updateHash) history.replaceState(null,'',`#${target.id}`);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
     function exportCSV() {
       const headers=["id","fecha_asignacion","hora","horario_laboral","canal","tipo_origen","grupo","agente","categoria","tipificacion","con_mensaje_agente","venta","cumple_sla","tiempo_primera_respuesta","estado"];
       const lines=[headers.join(',')];
@@ -1227,6 +1300,7 @@
 
     function toast(msg) { const t=$("toast"); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
 
+    setupPages();
     $("applyBtn").addEventListener('click',()=>applyFilters(true));
     $("clearBtn").addEventListener('click',()=>{ ["scheduleFilter","channelFilter","groupFilter","agentFilter","typeFilter"].forEach(id=>$(id).value='all'); $("dateFilter").value='week'; applyFilters(true); });
     $("refreshBtn").addEventListener('click',()=>loadPublishedCSV(false));
@@ -1238,7 +1312,9 @@
       catch (error) { toast(error.message); }
       event.target.value = '';
     });
-    $("exportBtn").addEventListener('click',exportCSV); $("exportNav").addEventListener('click',e=>{e.preventDefault();exportCSV();});
+    $("exportBtn").addEventListener('click',exportCSV);
+    $("exportPageBtn").addEventListener('click',exportCSV);
+    $("uploadPageBtn").addEventListener('click',()=>$("csvInput").click());
     $("themeBtn").addEventListener('click',()=>document.body.classList.toggle('dark'));
     $("connectBtn").addEventListener('click',()=>openDetail('integration'));
     $("issuesBtn").addEventListener('click',()=>openDetail('actions'));
@@ -1251,10 +1327,12 @@
     });
     $("sortAgentsBtn").addEventListener('click',()=>{sortBySla=!sortBySla; $("sortAgentsBtn").textContent=sortBySla?'Ordenar por volumen':'Ordenar por SLA';renderAgents();});
     document.querySelectorAll('#trendMode button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#trendMode button').forEach(x=>x.classList.remove('active'));b.classList.add('active');trendMode=b.dataset.mode;renderTrend();}));
-    document.querySelectorAll('.nav a[data-nav]').forEach(a=>a.addEventListener('click',()=>{document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active');}));
+    document.querySelectorAll('.nav a[data-nav]').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();activatePage(a.dataset.nav);}));
+    window.addEventListener('hashchange',()=>activatePage(location.hash.slice(1)||'overview',false));
 
     populateAgents();
     applyFilters();
+    activatePage(location.hash.slice(1)||'overview',false);
   </script>
 </body>
 </html>
