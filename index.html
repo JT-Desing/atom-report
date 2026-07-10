@@ -327,13 +327,19 @@
       height: 84%;
       z-index: 1;
     }
-    .hero-bars { position: absolute; inset: 22px 18px 18px 32px; display: flex; align-items: end; gap: 10px; }
-    .hero-bars i { display: block; flex: 1; border-radius: 10px 10px 5px 5px; background: linear-gradient(180deg, #cbef7e, #7ab952); opacity: .92; transform-origin: bottom; animation: heroBarRise .75s cubic-bezier(.2,.75,.25,1) both; }
-    .hero-bars i:nth-child(2) { animation-delay: .07s; } .hero-bars i:nth-child(3) { animation-delay: .14s; } .hero-bars i:nth-child(4) { animation-delay: .21s; } .hero-bars i:nth-child(5) { animation-delay: .28s; } .hero-bars i:nth-child(6) { animation-delay: .35s; }
+    .hero-chart-legend { position:absolute; top:2px; right:12px; display:flex; gap:10px; color:rgba(255,255,255,.78); font-size:8px; font-weight:700; }
+    .hero-chart-legend span { display:flex; align-items:center; gap:4px; }
+    .hero-chart-legend i { width:6px; height:6px; border-radius:50%; background:#a7d35e; }
+    .hero-chart-legend span:last-child i { background:#fff; }
+    .hero-bars { position: absolute; inset: 22px 0 18px; }
+    .hero-bars i { display: block; position:absolute; bottom:0; width:14%; margin-left:-7%; border-radius: 10px 10px 5px 5px; background: linear-gradient(180deg, #cbef7e, #7ab952); opacity: .92; transform-origin: bottom; animation: heroBarRise .75s cubic-bezier(.2,.75,.25,1) both; }
+    .hero-bars i:nth-child(1) { left:18.333%; } .hero-bars i:nth-child(2) { left:40.833%; } .hero-bars i:nth-child(3) { left:63.056%; } .hero-bars i:nth-child(4) { left:85.556%; }
+    .hero-bars i:nth-child(2) { animation-delay: .10s; } .hero-bars i:nth-child(3) { animation-delay: .20s; } .hero-bars i:nth-child(4) { animation-delay: .30s; }
     .hero-line { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-    .hero-line path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: drawLine 1.1s .25s ease forwards; }
+    .hero-line path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: drawLine .9s .55s ease forwards; }
     .hero-line circle { opacity: 0; animation: dotIn .25s ease forwards; }
-    .hero-line circle:nth-of-type(1) { animation-delay:.38s } .hero-line circle:nth-of-type(2) { animation-delay:.50s } .hero-line circle:nth-of-type(3) { animation-delay:.62s } .hero-line circle:nth-of-type(4) { animation-delay:.74s } .hero-line circle:nth-of-type(5) { animation-delay:.86s } .hero-line circle:nth-of-type(6) { animation-delay:.98s }
+    .hero-line circle:nth-of-type(1) { animation-delay:.68s } .hero-line circle:nth-of-type(2) { animation-delay:.82s } .hero-line circle:nth-of-type(3) { animation-delay:.96s } .hero-line circle:nth-of-type(4) { animation-delay:1.10s }
+    .hero-axis-label { fill:rgba(255,255,255,.68); font-size:8px; font-weight:700; }
 
     .health-card {
       background: var(--surface);
@@ -819,9 +825,10 @@
               <p>Prioriza nivel de servicio, respuesta y conversaciones pendientes antes de profundizar en volumen y desempeño.</p>
               <button id="issuesBtn">Ver alertas operativas →</button>
             </div>
-            <div class="hero-visual" aria-hidden="true">
-              <div class="hero-bars"><i style="height:34%"></i><i style="height:57%"></i><i style="height:45%"></i><i style="height:73%"></i><i style="height:61%"></i><i style="height:88%"></i></div>
-              <svg class="hero-line" viewBox="0 0 360 180" preserveAspectRatio="none"><path pathLength="1" d="M16 132 C42 116 58 128 78 112 C98 96 112 101 137 86 C160 72 176 79 198 63 C221 47 240 57 260 43 C282 28 307 34 340 18" fill="none" stroke="rgba(255,255,255,.86)" stroke-width="3"/><g fill="#fff"><circle cx="16" cy="132" r="4"/><circle cx="78" cy="112" r="4"/><circle cx="137" cy="86" r="4"/><circle cx="198" cy="63" r="4"/><circle cx="260" cy="43" r="4"/><circle cx="340" cy="18" r="4"/></g></svg>
+            <div class="hero-visual">
+              <div class="hero-chart-legend"><span><i></i>Conversaciones</span><span><i></i>SLA</span></div>
+              <div class="hero-bars"><i class="data-hover" data-tip="6 jul: 99 conversaciones" style="height:71.2%"></i><i class="data-hover" data-tip="7 jul: 103 conversaciones" style="height:74.1%"></i><i class="data-hover" data-tip="8 jul: 109 conversaciones" style="height:78.4%"></i><i class="data-hover" data-tip="9 jul: 139 conversaciones" style="height:100%"></i></div>
+              <svg class="hero-line" viewBox="0 0 360 180" preserveAspectRatio="none" role="img" aria-label="Conversaciones y nivel de servicio del 6 al 9 de julio"><path pathLength="1" d="M66 68 C93 68 120 93 147 93 C174 93 200 83 227 83 C254 83 281 83 308 83" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="3"/><g fill="#fff"><circle class="data-hover" data-tip="6 jul: SLA 66%" cx="66" cy="68" r="4"/><circle class="data-hover" data-tip="7 jul: SLA 48%" cx="147" cy="93" r="4"/><circle class="data-hover" data-tip="8 jul: SLA 55%" cx="227" cy="83" r="4"/><circle class="data-hover" data-tip="9 jul: SLA 55%" cx="308" cy="83" r="4"/></g><g text-anchor="middle"><text class="hero-axis-label" x="66" y="176">6 jul</text><text class="hero-axis-label" x="147" y="176">7 jul</text><text class="hero-axis-label" x="227" y="176">8 jul</text><text class="hero-axis-label" x="308" y="176">9 jul</text></g></svg>
             </div>
           </article>
 
