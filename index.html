@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATOM REPORT — Centro de control operativo</title>
+  <style>
+    @font-face { font-family: "Davivienda"; src: url("assets/fonts/Davivienda-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Davivienda"; src: url("assets/fonts/Davivienda-SemiBold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+    @font-face { font-family: "Davivienda"; src: url("assets/fonts/Davivienda-Bold.woff2") format("woff2"); font-weight: 700 900; font-display: swap; }
+    :root {
+      --bg: #f5f5f4;
+      --surface: #ffffff;
+      --surface-soft: #f7faf6;
+      --text: #17231d;
+      --muted: #69786f;
+      --line: #dde6df;
+      --brand: #c8102e;
+      --brand-2: #e21d3f;
+      --brand-soft: #fde8ec;
+      --lime: #9bc64b;
+      --lime-soft: #edf6db;
+      --orange: #f39a52;
+      --orange-soft: #fff0e4;
+      --danger: #de6e71;
+      --danger-soft: #fdebec;
+      --cyan: #75c4c1;
+      --navy: #202124;
+      --shadow: 0 12px 35px rgba(30, 72, 51, .08);
+      --radius: 18px;
+    }
+
+    body.dark {
+      --bg: #0f1713;
+      --surface: #17211c;
+      --surface-soft: #1c2922;
+      --text: #eef6f1;
+      --muted: #a8b7ad;
+      --line: #2d3b33;
+      --brand-soft: #183a2a;
+      --lime-soft: #29351c;
+      --orange-soft: #3a2a1f;
+      --danger-soft: #3d2527;
+      --shadow: 0 12px 35px rgba(0, 0, 0, .22);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Davivienda", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+    button, select, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 236px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 16px;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px 22px;
+    }
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #aa0c26, var(--brand-2));
+      display: grid;
+      place-items: center;
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(200, 16, 46, .2);
+      font-weight: 800;
+    }
+    .brand h1 { font-size: 15px; margin: 0; line-height: 1.1; }
+    .brand p { font-size: 11px; color: var(--muted); margin: 4px 0 0; }
+
+    .workspace {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      margin: 0 0 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface-soft);
+    }
+    .workspace-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: var(--lime-soft);
+      color: var(--brand);
+    }
+    .workspace strong { display: block; font-size: 12px; }
+    .workspace span { display: block; color: var(--muted); font-size: 10px; margin-top: 2px; }
+
+    .nav-label {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin: 8px 12px;
+    }
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 12px;
+      color: var(--muted);
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 650;
+      transition: .2s ease;
+    }
+    .nav a:hover { background: var(--surface-soft); color: var(--text); }
+    .nav a.active {
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+    .nav svg { width: 17px; height: 17px; flex: 0 0 auto; }
+
+    .upgrade {
+      margin-top: auto;
+      border-radius: 16px;
+      padding: 16px;
+      background: linear-gradient(150deg, #eef8df, #f9fcf3);
+      border: 1px solid #dcecc7;
+      color: #22311f;
+    }
+    body.dark .upgrade { background: #21301f; border-color: #35492f; color: var(--text); }
+    .upgrade-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: var(--lime);
+      color: #fff;
+      margin-bottom: 11px;
+    }
+    .upgrade h3 { margin: 0 0 6px; font-size: 13px; }
+    .upgrade p { margin: 0 0 12px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .upgrade button {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 9px;
+      color: #fff;
+      font-weight: 750;
+      font-size: 11px;
+      background: var(--brand);
+    }
+
+    .main { min-width: 0; padding: 22px 26px 36px; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .hello small { color: var(--muted); font-size: 12px; }
+    .hello h2 { margin: 4px 0 0; font-size: 24px; letter-spacing: -.03em; }
+    .top-actions { display: flex; align-items: center; gap: 9px; }
+    .icon-btn, .primary-btn, .secondary-btn {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 12px;
+      min-height: 40px;
+      padding: 0 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      box-shadow: 0 5px 14px rgba(37, 60, 46, .04);
+    }
+    .icon-btn { width: 40px; padding: 0; }
+    .primary-btn { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .secondary-btn:hover, .icon-btn:hover { border-color: #b9c9be; }
+
+    .filter-shell {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .filter-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .filter-head h3 { margin: 0; font-size: 13px; }
+    .filter-head span { color: var(--muted); font-size: 11px; }
+    .filters {
+      display: grid;
+      grid-template-columns: 1.35fr repeat(5, minmax(135px, 1fr)) auto;
+      gap: 10px;
+      padding: 13px 16px 14px;
+      align-items: end;
+    }
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+    }
+    .field select, .field input {
+      width: 100%;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0 10px;
+      background: var(--surface-soft);
+      color: var(--text);
+      outline: none;
+      font-size: 11px;
+    }
+    .field select:focus, .field input:focus { border-color: var(--brand-2); box-shadow: 0 0 0 3px rgba(47, 141, 95, .12); }
+    .filter-actions { display: flex; gap: 8px; }
+    .filter-actions button { height: 38px; white-space: nowrap; }
+    .active-filters {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      padding: 0 16px 13px;
+    }
+    .chip {
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 198px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, #174f39 0%, #2f7f55 57%, #4a985f 100%);
+      color: #fff;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+    .hero::before, .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,.09);
+    }
+    .hero::before { width: 280px; height: 280px; right: -80px; top: -95px; }
+    .hero::after { width: 140px; height: 140px; right: 165px; bottom: -70px; }
+    .hero-content { position: relative; z-index: 2; max-width: 58%; }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: rgba(255,255,255,.13);
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #c7f271; box-shadow: 0 0 0 4px rgba(199,242,113,.15); }
+    .hero h3 { font-size: 23px; line-height: 1.12; margin: 17px 0 8px; letter-spacing: -.03em; }
+    .hero p { margin: 0 0 20px; font-size: 11px; line-height: 1.55; color: rgba(255,255,255,.78); }
+    .hero button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 13px;
+      background: #fff;
+      color: #184c37;
+      font-weight: 800;
+      font-size: 11px;
+    }
+    .hero-visual {
+      position: absolute;
+      right: 16px;
+      bottom: 8px;
+      width: 40%;
+      height: 82%;
+      z-index: 1;
+    }
+    .hero-bars { position: absolute; inset: 22px 18px 18px 32px; display: flex; align-items: end; gap: 9px; }
+    .hero-bars i { display: block; flex: 1; border-radius: 10px 10px 5px 5px; background: linear-gradient(180deg, #cbef7e, #7ab952); opacity: .92; }
+    .hero-line { position: absolute; inset: 0; }
+
+    .health-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 15px; }
+    .panel-head h3 { margin: 0; font-size: 13px; }
+    .panel-head p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .more { border: 0; background: transparent; color: var(--muted); font-size: 18px; }
+    .gauge-wrap { display: grid; grid-template-columns: 150px 1fr; align-items: center; gap: 14px; }
+    .gauge {
+      width: 150px;
+      aspect-ratio: 1.35;
+      overflow: hidden;
+      position: relative;
+    }
+    .gauge-ring {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: conic-gradient(from 270deg, var(--lime) 0 52deg, var(--brand-2) 52deg 68deg, #e4e9e5 68deg 180deg, transparent 180deg 360deg);
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .gauge-ring::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 50%;
+      background: var(--surface);
+    }
+    .gauge-value { position: absolute; width: 100%; top: 55px; text-align: center; z-index: 2; }
+    .gauge-value strong { display: block; font-size: 26px; }
+    .gauge-value span { color: var(--muted); font-size: 9px; }
+    .mini-legend { display: grid; gap: 10px; }
+    .mini-legend div { display: grid; grid-template-columns: 8px 1fr auto; gap: 8px; align-items: center; font-size: 10px; }
+    .mini-legend i { width: 8px; height: 8px; border-radius: 50%; }
+    .mini-legend span { color: var(--muted); }
+    .mini-legend b { font-size: 10px; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .kpi {
+      position: relative;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 15px;
+      box-shadow: 0 7px 22px rgba(30, 72, 51, .05);
+      min-height: 125px;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .kpi .label { color: var(--muted); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .kpi .icon { width: 27px; height: 27px; border-radius: 9px; display: grid; place-items: center; background: var(--surface-soft); color: var(--brand); }
+    .kpi .value { font-size: 27px; line-height: 1; font-weight: 800; letter-spacing: -.04em; margin: 18px 0 11px; }
+    .kpi .foot { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 9px; }
+    .delta { border-radius: 999px; padding: 3px 6px; font-size: 9px; font-weight: 800; }
+    .delta.up { background: var(--brand-soft); color: var(--brand); }
+    .delta.down { background: var(--danger-soft); color: var(--danger); }
+    .kpi-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--line); }
+    .kpi-bar i { display: block; height: 100%; background: var(--brand-2); }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(320px, .95fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .stack { display: grid; gap: 16px; }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+    .panel-tools { display: flex; gap: 6px; }
+    .segmented {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 9px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+    }
+    .segmented button {
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      padding: 6px 9px;
+      font-size: 9px;
+      font-weight: 700;
+    }
+    .segmented button.active { background: var(--surface); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+
+    .chart-wrap { width: 100%; overflow: hidden; }
+    #trendChart { width: 100%; height: 285px; display: block; }
+    .axis-label { fill: var(--muted); font-size: 9px; }
+    .grid-line { stroke: var(--line); stroke-width: 1; }
+    .bar { fill: var(--orange); opacity: .86; transition: .2s; }
+    .bar:hover { opacity: 1; }
+    .line-path { fill: none; stroke: #4e9eef; stroke-width: 2.5; }
+    .line-area { fill: url(#lineArea); opacity: .18; }
+    .line-dot { fill: var(--surface); stroke: #4e9eef; stroke-width: 2; }
+    .chart-tooltip {
+      position: fixed;
+      pointer-events: none;
+      z-index: 99;
+      background: #15271e;
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      opacity: 0;
+      transform: translate(-50%, -110%);
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+    }
+
+    .channel-list { display: grid; gap: 12px; margin-top: 4px; }
+    .channel-row { display: grid; grid-template-columns: 110px 1fr 42px; gap: 10px; align-items: center; }
+    .channel-name { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 700; }
+    .channel-icon { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-soft); }
+    .progress { height: 8px; background: var(--surface-soft); border-radius: 999px; overflow: hidden; }
+    .progress i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--brand), var(--lime)); }
+    .channel-row b { font-size: 10px; text-align: right; }
+
+    .donut-section { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 15px; }
+    .donut {
+      width: 160px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: conic-gradient(var(--cyan) 0 58%, var(--danger) 58% 84%, var(--lime) 84% 100%);
+      position: relative;
+      margin: auto;
+    }
+    .donut::after { content: ""; position: absolute; inset: 29px; border-radius: 50%; background: var(--surface); }
+    .donut-center { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; text-align: center; }
+    .donut-center strong { font-size: 24px; }
+    .donut-center span { font-size: 9px; color: var(--muted); }
+    .legend { display: grid; gap: 12px; }
+    .legend-row { display: grid; grid-template-columns: 9px 1fr auto; gap: 8px; align-items: center; font-size: 10px; }
+    .legend-row i { width: 9px; height: 9px; border-radius: 50%; }
+    .legend-row span { color: var(--muted); }
+
+    .heatmap {
+      display: grid;
+      grid-template-columns: 54px repeat(10, 1fr);
+      gap: 5px;
+      align-items: center;
+    }
+    .heatmap .hlabel { color: var(--muted); font-size: 8px; text-align: center; }
+    .heatmap .day { color: var(--muted); font-size: 9px; font-weight: 700; }
+    .heat-cell { aspect-ratio: 1.5; border-radius: 5px; background: var(--brand); opacity: .1; position: relative; }
+    .heat-cell:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 6px);
+      transform: translateX(-50%);
+      background: #15271e;
+      color: #fff;
+      border-radius: 6px;
+      padding: 5px 7px;
+      font-size: 8px;
+      white-space: nowrap;
+      z-index: 4;
+    }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    th { color: var(--muted); text-align: left; font-size: 9px; font-weight: 800; padding: 10px 8px; border-bottom: 1px solid var(--line); }
+    td { padding: 12px 8px; border-bottom: 1px solid var(--line); font-size: 10px; }
+    tr:last-child td { border-bottom: 0; }
+    .agent { display: flex; align-items: center; gap: 8px; }
+    .avatar { width: 29px; height: 29px; border-radius: 9px; display: grid; place-items: center; font-size: 9px; font-weight: 800; color: #fff; background: linear-gradient(135deg, var(--brand), var(--lime)); }
+    .agent strong { display: block; font-size: 10px; }
+    .agent span { display: block; color: var(--muted); font-size: 8px; margin-top: 2px; }
+    .pill { border-radius: 999px; padding: 5px 7px; font-size: 8px; font-weight: 800; display: inline-block; }
+    .pill.good { background: var(--brand-soft); color: var(--brand); }
+    .pill.warn { background: var(--orange-soft); color: #b96928; }
+    .pill.bad { background: var(--danger-soft); color: var(--danger); }
+
+    .actions-list { display: grid; gap: 10px; }
+    .action-item {
+      display: grid;
+      grid-template-columns: 35px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+      border-radius: 13px;
+      padding: 11px;
+    }
+    .action-icon { width: 35px; height: 35px; border-radius: 10px; display: grid; place-items: center; background: var(--orange-soft); color: var(--orange); }
+    .action-item h4 { margin: 0; font-size: 10px; }
+    .action-item p { margin: 4px 0 0; color: var(--muted); font-size: 9px; line-height: 1.35; }
+    .action-item button { border: 0; background: transparent; color: var(--brand); font-size: 10px; font-weight: 800; }
+
+    .data-note {
+      margin-top: 16px;
+      padding: 13px 15px;
+      border-radius: 14px;
+      background: var(--orange-soft);
+      border: 1px solid #f5dcc7;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.45;
+    }
+    body.dark .data-note { border-color: #5b402b; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 17, 12, .48);
+      display: none;
+      place-items: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: grid; }
+    .modal {
+      width: min(820px, 100%);
+      max-height: 82vh;
+      overflow: auto;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      box-shadow: 0 30px 80px rgba(0,0,0,.28);
+    }
+    .modal-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .modal-head h3 { margin: 0; font-size: 15px; }
+    .modal-head button { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); color: var(--text); }
+    .modal-body { padding: 18px 20px; }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      background: #15271e;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: .25s ease;
+      z-index: 120;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 1280px) {
+      .filters { grid-template-columns: repeat(4, minmax(140px, 1fr)); }
+      .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .overview-grid { grid-template-columns: 1.45fr 1fr; }
+    }
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 76px minmax(0, 1fr); }
+      .sidebar { padding: 18px 10px; }
+      .brand-copy, .workspace-copy, .nav a span, .nav-label, .upgrade { display: none; }
+      .brand { justify-content: center; padding: 0 0 22px; }
+      .workspace { justify-content: center; padding: 9px; }
+      .nav a { justify-content: center; padding: 12px; }
+      .dashboard-grid, .overview-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: repeat(3, minmax(130px, 1fr)); }
+    }
+    @media (max-width: 700px) {
+      .app { display: block; }
+      .sidebar { position: fixed; left: 0; right: 0; bottom: 0; top: auto; height: 66px; border-right: 0; border-top: 1px solid var(--line); padding: 8px; flex-direction: row; z-index: 90; }
+      .brand, .workspace, .nav-label, .upgrade, .nav a:nth-child(n+6) { display: none; }
+      .nav { width: 100%; flex-direction: row; justify-content: space-around; }
+      .nav a { flex: 1; }
+      .main { padding: 17px 14px 90px; }
+      .topbar { align-items: flex-start; }
+      .hello h2 { font-size: 20px; }
+      .top-actions .secondary-btn span { display: none; }
+      .filters { grid-template-columns: 1fr 1fr; }
+      .filter-actions { grid-column: 1 / -1; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .hero-content { max-width: 88%; }
+      .hero-visual { opacity: .25; width: 55%; }
+      .gauge-wrap, .donut-section { grid-template-columns: 1fr; }
+      .heatmap { grid-template-columns: 40px repeat(10, 1fr); gap: 3px; }
+    }
+
+    /* ATOM REPORT: jerarquía operativa y lenguaje visual Davivienda */
+    .sidebar { background: #fff; }
+    .brand-mark { border-radius: 50% 50% 46% 46%; }
+    .brand h1 { letter-spacing: .08em; }
+    .workspace-icon { background: var(--brand-soft); color: var(--brand); }
+    .nav a.active { box-shadow: inset 3px 0 0 var(--brand); }
+    .primary-btn { background: var(--brand); }
+    .primary-btn:hover { background: #a90d27; }
+    .hero { background: linear-gradient(135deg, #202124 0%, #34373b 66%, #5b202b 100%); }
+    .hero button { color: #7f0a1f; }
+    .status-dot { background: #69d28b; }
+    .source-strip { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 0 14px; padding: 10px 14px; border: 1px solid var(--line); border-left: 4px solid var(--brand); border-radius: 12px; background: var(--surface); color: var(--muted); font-size: 11px; }
+    .source-strip strong { color: var(--text); }
+    .source-state { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+    .source-state::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #e9a23b; box-shadow: 0 0 0 4px rgba(233,162,59,.14); }
+    .source-state.live::before { background: #2e9d61; box-shadow: 0 0 0 4px rgba(46,157,97,.14); }
+    .section-kicker { margin: 26px 0 10px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .upload-label { display: inline-flex; align-items: center; gap: 7px; }
+    .kpi:focus-visible, button:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid rgba(200,16,46,.25); outline-offset: 2px; }
+    .kpi { cursor: pointer; }
+    body.dark .sidebar { background: var(--surface); }
+    body.dark .hero { background: linear-gradient(135deg, #111214, #24262a 70%, #611125); }
+    @media (max-width: 700px) { .source-strip { align-items: flex-start; flex-direction: column; } .top-actions { flex-wrap: wrap; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div class="brand-copy"><h1>ATOM REPORT</h1><p>Centro de control operativo</p></div>
+      </div>
+
+      <div class="workspace">
+        <div class="workspace-icon">◫</div>
+        <div class="workspace-copy"><strong>ePayco · ATOM</strong><span>Reporte de atención</span></div>
+      </div>
+
+      <div class="nav-label">General</div>
+      <nav class="nav">
+        <a href="#overview" class="active" data-nav="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>Resumen</span></a>
+        <a href="#performance" data-nav="performance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg><span>Rendimiento</span></a>
+        <a href="#agents" data-nav="agents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Agentes</span></a>
+        <a href="#typifications" data-nav="typifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41 11 3.83V3H4v7h.83l9.58 9.59a2 2 0 0 0 2.82 0l3.36-3.36a2 2 0 0 0 0-2.82Z"/><circle cx="7.5" cy="6.5" r="1.2"/></svg><span>Tipificaciones</span></a>
+        <a href="#channels" data-nav="channels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg><span>Canales</span></a>
+        <a href="#" id="exportNav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg><span>Exportaciones</span></a>
+      </nav>
+
+      <div class="upgrade">
+        <div class="upgrade-icon">↗</div>
+        <h3>Conecta la fuente real</h3>
+        <p>Reemplaza los datos demo por una exportación CSV o un endpoint de ATOM.</p>
+        <button id="connectBtn">Ver integración</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="hello">
+          <small>Buenos días, Julián</small>
+          <h2>Centro de control de atención</h2>
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn" id="themeBtn" title="Cambiar tema">◐</button>
+          <button class="secondary-btn" id="refreshBtn">↻ <span>Actualizar</span></button>
+          <button class="secondary-btn upload-label" id="uploadBtn">↑ <span>Cargar CSV</span></button>
+          <input id="csvInput" type="file" accept=".csv,text/csv" hidden />
+          <button class="primary-btn" id="exportBtn">⇩ Exportar CSV</button>
+        </div>
+      </header>
+
+      <div class="source-strip" role="status" aria-live="polite">
+        <span><strong>Fuente de datos:</strong> <span id="sourceDescription">muestra demostrativa local</span></span>
+        <span class="source-state" id="sourceState">Modo demo · sin datos sensibles</span>
+      </div>
+
+      <section class="filter-shell" aria-label="Filtros del reporte">
+        <div class="filter-head">
+          <div><h3>Filtros del reporte</h3><span>Los indicadores se recalculan al aplicar filtros.</span></div>
+          <span id="freshness">Última actualización: 10:00</span>
+        </div>
+        <div class="filters">
+          <div class="field">
+            <label>Fecha de asignación</label>
+            <select id="dateFilter">
+              <option value="week">Esta semana</option>
+              <option value="today">Hoy</option>
+              <option value="yesterday">Ayer</option>
+              <option value="7">Últimos 7 días</option>
+              <option value="30">Últimos 30 días</option>
+              <option value="all">Todo el histórico</option>
+            </select>
+          </div>
+          <div class="field"><label>Horario laboral</label><select id="scheduleFilter"><option value="all">Todos</option><option value="in">En horario laboral</option><option value="out">Fuera de horario</option></select></div>
+          <div class="field"><label>Canal</label><select id="channelFilter"><option value="all">Todos los canales</option><option>WhatsApp</option><option>Webchat</option><option>Instagram</option><option>Facebook</option></select></div>
+          <div class="field"><label>Grupo</label><select id="groupFilter"><option value="all">Todos los grupos</option><option>Team Comercial</option><option>Soporte</option><option>Validación</option></select></div>
+          <div class="field"><label>Agente</label><select id="agentFilter"><option value="all">Todos los agentes</option></select></div>
+          <div class="field"><label>Tipificación</label><select id="typeFilter"><option value="all">Todas</option><option>Seguimiento</option><option>Fin positivo</option><option>Fin negativo</option><option>Sin tipificar</option></select></div>
+          <div class="filter-actions"><button class="primary-btn" id="applyBtn">Aplicar</button><button class="icon-btn" id="clearBtn" title="Limpiar filtros">×</button></div>
+        </div>
+        <div class="active-filters" id="activeFilters"></div>
+      </section>
+
+      <div class="section-kicker">01 · Salud y disponibilidad</div>
+      <section id="overview">
+        <div class="overview-grid">
+          <article class="hero">
+            <div class="hero-content">
+              <div class="status-pill"><span class="status-dot"></span> Operación en seguimiento</div>
+              <h3>¿Cómo está la operación y qué requiere atención ahora?</h3>
+              <p>Prioriza nivel de servicio, respuesta y conversaciones pendientes antes de profundizar en volumen y desempeño.</p>
+              <button id="issuesBtn">Ver alertas operativas →</button>
+            </div>
+            <div class="hero-visual" aria-hidden="true">
+              <div class="hero-bars"><i style="height:34%"></i><i style="height:57%"></i><i style="height:45%"></i><i style="height:73%"></i><i style="height:61%"></i><i style="height:88%"></i></div>
+              <svg class="hero-line" viewBox="0 0 320 180" preserveAspectRatio="none"><path d="M10 132 C55 112 68 145 106 107 S176 87 206 72 S260 73 310 35" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="3"/><g fill="#fff"><circle cx="10" cy="132" r="4"/><circle cx="106" cy="107" r="4"/><circle cx="206" cy="72" r="4"/><circle cx="310" cy="35" r="4"/></g></svg>
+            </div>
+          </article>
+
+          <article class="health-card">
+            <div class="panel-head"><div><h3>Salud operativa</h3><p>Índice compuesto del periodo</p></div><button class="more">•••</button></div>
+            <div class="gauge-wrap">
+              <div class="gauge"><div class="gauge-ring" id="gaugeRing"></div><div class="gauge-value"><strong id="healthScore">58</strong><span>de 100</span></div></div>
+              <div class="mini-legend">
+                <div><i style="background:var(--lime)"></i><span>Tipificación</span><b id="healthTyping">53%</b></div>
+                <div><i style="background:var(--brand-2)"></i><span>Mensaje agente</span><b id="healthMessage">61%</b></div>
+                <div><i style="background:var(--orange)"></i><span>Nivel de servicio</span><b id="healthSla">19%</b></div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="kpi-grid" id="kpiGrid">
+          <article class="kpi" data-detail="assigned"><div class="label">Conversaciones asignadas <span class="icon">⌁</span></div><div class="value" id="kpiAssigned">36</div><div class="foot"><span class="delta up" id="deltaAssigned">+8.3%</span> vs. periodo anterior</div><div class="kpi-bar"><i style="width:72%"></i></div></article>
+          <article class="kpi" data-detail="message"><div class="label">Con mensaje de agente <span class="icon">✉</span></div><div class="value" id="kpiMessage">61%</div><div class="foot"><span class="delta up">+4.1%</span> cobertura del equipo</div><div class="kpi-bar"><i id="barMessage" style="width:61%"></i></div></article>
+          <article class="kpi" data-detail="typed"><div class="label">Tipificadas por agente <span class="icon">⌑</span></div><div class="value" id="kpiTyped">53%</div><div class="foot"><span class="delta down" id="missingTyped">17 pendientes</span> requieren revisión</div><div class="kpi-bar"><i id="barTyped" style="width:53%"></i></div></article>
+          <article class="kpi" data-detail="sales"><div class="label">Ventas registradas <span class="icon">$</span></div><div class="value" id="kpiSales">0</div><div class="foot"><span class="delta down">Sin conversión</span> en el periodo</div><div class="kpi-bar"><i id="barSales" style="width:2%; background:var(--orange)"></i></div></article>
+          <article class="kpi" data-detail="sla"><div class="label">Nivel de servicio <span class="icon">✓</span></div><div class="value" id="kpiSla">19%</div><div class="foot"><span class="delta down">−11.0%</span> objetivo sugerido: 80%</div><div class="kpi-bar"><i id="barSla" style="width:19%; background:var(--danger)"></i></div></article>
+          <article class="kpi" data-detail="frt"><div class="label">Primera respuesta <span class="icon">◷</span></div><div class="value" id="kpiFrt">2.1 min</div><div class="foot"><span class="delta up">−0.4 min</span> mejor que el periodo previo</div><div class="kpi-bar"><i id="barFrt" style="width:68%; background:var(--cyan)"></i></div></article>
+        </div>
+      </section>
+
+      <div class="section-kicker">02 · Rendimiento, volumen y riesgo</div>
+      <section class="dashboard-grid" id="performance">
+        <div class="stack">
+          <article class="panel">
+            <div class="panel-head">
+              <div><h3>Volumen y nivel de servicio</h3><p>Conversaciones asignadas frente al porcentaje dentro del SLA</p></div>
+              <div class="segmented" id="trendMode"><button class="active" data-mode="day">Día</button><button data-mode="hour">Hora</button></div>
+            </div>
+            <div class="chart-wrap"><svg id="trendChart" viewBox="0 0 820 285" preserveAspectRatio="none"></svg></div>
+          </article>
+
+          <article class="panel" id="agents">
+            <div class="panel-head"><div><h3>Rendimiento por agente</h3><p>Productividad, cobertura, tipificación y cumplimiento del SLA</p></div><button class="secondary-btn" id="sortAgentsBtn">Ordenar por SLA</button></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Agente</th><th>Conversaciones</th><th>Con mensaje</th><th>Tipificadas</th><th>SLA</th><th>1.ª respuesta</th><th>Estado</th></tr></thead>
+                <tbody id="agentTable"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head"><div><h3>Mapa de carga por hora</h3><p>Intensidad de conversaciones por día y franja horaria</p></div><span class="pill good">Mayor intensidad = tono más oscuro</span></div>
+            <div class="heatmap" id="heatmap"></div>
+          </article>
+        </div>
+
+        <div class="stack">
+          <article class="panel" id="typifications">
+            <div class="panel-head"><div><h3>Tipificaciones por grupo</h3><p>Distribución de cierres y seguimientos</p></div><button class="more">•••</button></div>
+            <div class="donut-section">
+              <div class="donut" id="donut"><div class="donut-center"><strong id="donutTotal">19</strong><span>Total tipificadas</span></div></div>
+              <div class="legend" id="typeLegend"></div>
+            </div>
+          </article>
+
+          <article class="panel" id="channels">
+            <div class="panel-head"><div><h3>Distribución por canal</h3><p>Participación del volumen asignado</p></div><button class="more">•••</button></div>
+            <div class="channel-list" id="channelList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head"><div><h3>Centro de acciones</h3><p>Excepciones que requieren seguimiento</p></div><span class="pill warn" id="actionCount">3 alertas</span></div>
+            <div class="actions-list" id="actionsList"></div>
+          </article>
+        </div>
+      </section>
+
+      <div class="data-note">
+        <strong>Privacidad y definiciones:</strong> GitHub Pages muestra únicamente datos demostrativos. Para analizar información real, usa “Cargar CSV” en tu navegador o despliega una copia interna. Antes de operar con estos indicadores, valida en ATOM las fórmulas oficiales de SLA, primera respuesta y venta.
+      </div>
+    </main>
+  </div>
+
+  <div class="chart-tooltip" id="chartTooltip"></div>
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <div class="modal-head"><h3 id="modalTitle">Detalle</h3><button id="modalClose">×</button></div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast">Actualizado</div>
+
+  <script>
+    const AGENTS = ["Laura Gómez", "Santiago Ruiz", "Mariana Vélez", "Andrés Pérez", "Camila Torres", "Juan Restrepo"];
+    const CHANNELS = ["WhatsApp", "Webchat", "Instagram", "Facebook"];
+    const GROUPS = ["Team Comercial", "Soporte", "Validación"];
+    const TYPES = ["Seguimiento", "Fin positivo", "Fin negativo"];
+    const COLORS = { "Seguimiento": "#75c4c1", "Fin negativo": "#de6e71", "Fin positivo": "#9bc64b" };
+    let NOW = new Date("2026-07-10T10:00:00");
+
+    let seed = 42;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    const pick = arr => arr[Math.floor(rnd() * arr.length)];
+    const iso = d => d.toISOString().slice(0,10);
+
+    function buildCurrentWeek() {
+      const distribution = [["2026-07-06",3],["2026-07-07",14],["2026-07-08",7],["2026-07-09",12]];
+      const rows = [];
+      let index = 0;
+      distribution.forEach(([date, count]) => {
+        for (let i=0; i<count; i++) {
+          const typed = index < 19;
+          const agentMessage = index < 22;
+          const sla = index < 7;
+          const type = typed ? (index < 11 ? "Seguimiento" : index < 16 ? "Fin negativo" : "Fin positivo") : "Sin tipificar";
+          const frtValues = [0.8,1.2,1.5,1.8,2,2.1,2.2,2.4,2.5,2.8,3.1,1.7];
+          const hourOptions = [8,9,10,11,12,14,15,16,17];
+          const hour = hourOptions[(index * 3 + i) % hourOptions.length];
+          rows.push({
+            id: `CW-${index+1}`,
+            date,
+            hour,
+            schedule: hour >= 8 && hour < 18 ? "in" : "out",
+            channel: CHANNELS[index % CHANNELS.length],
+            origin: index % 3 === 0 ? "Campaña" : index % 3 === 1 ? "Orgánico" : "Referido",
+            group: index < 22 ? "Team Comercial" : index < 29 ? "Soporte" : "Validación",
+            agent: AGENTS[index % AGENTS.length],
+            category: index % 2 ? "Comercial" : "Servicio",
+            type,
+            agentMessage,
+            typed,
+            sale: 0,
+            sla,
+            firstResponse: frtValues[index % frtValues.length],
+            status: index % 5 === 0 ? "Abierta" : "Cerrada"
+          });
+          index++;
+        }
+      });
+      const targetAvg = 2.1;
+      const currentAvg = rows.reduce((s,r)=>s+r.firstResponse,0)/rows.length;
+      const adjustment = targetAvg-currentAvg;
+      rows.forEach(r => r.firstResponse = Math.max(.3, +(r.firstResponse+adjustment).toFixed(1)));
+      return rows;
+    }
+
+    function buildHistory() {
+      const rows = [];
+      for (let day = 1; day <= 35; day++) {
+        const d = new Date("2026-06-01T12:00:00");
+        d.setDate(d.getDate()+day-1);
+        const count = 4 + Math.floor(rnd()*13);
+        for (let i=0; i<count; i++) {
+          const hour = 8 + Math.floor(rnd()*11);
+          const typed = rnd() > .27;
+          const agentMessage = rnd() > .18;
+          const sla = rnd() > .34;
+          const sale = rnd() > .92 ? 1 : 0;
+          rows.push({
+            id: `H-${day}-${i}`,
+            date: iso(d), hour,
+            schedule: hour >= 8 && hour < 18 ? "in" : "out",
+            channel: pick(CHANNELS), origin: pick(["Campaña","Orgánico","Referido"]),
+            group: pick(GROUPS), agent: pick(AGENTS), category: pick(["Comercial","Servicio","Validación"]),
+            type: typed ? pick(TYPES) : "Sin tipificar", agentMessage, typed, sale, sla,
+            firstResponse: +(0.5 + rnd()*5.2).toFixed(1), status: rnd()>.22?"Cerrada":"Abierta"
+          });
+        }
+      }
+      return rows;
+    }
+
+    let DATA = [...buildHistory(), ...buildCurrentWeek()];
+    let filtered = [];
+    let trendMode = "day";
+    let sortBySla = false;
+
+    const $ = id => document.getElementById(id);
+    const pct = (n,d) => d ? Math.round(n/d*100) : 0;
+    const formatDate = value => new Intl.DateTimeFormat("es-CO", {day:"numeric", month:"short"}).format(new Date(value+"T12:00:00"));
+
+    function populateAgents() {
+      const select = $("agentFilter");
+      select.innerHTML = '<option value="all">Todos los agentes</option>';
+      [...new Set(DATA.map(r => r.agent).filter(Boolean))].sort().forEach(a => { const o = document.createElement("option"); o.textContent = a; select.appendChild(o); });
+    }
+
+    function parseCSV(text) {
+      const delimiter = (text.split(/\r?\n/, 1)[0].match(/;/g) || []).length > (text.split(/\r?\n/, 1)[0].match(/,/g) || []).length ? ';' : ',';
+      const matrix = [];
+      let row = [], cell = '', quoted = false;
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i], next = text[i + 1];
+        if (char === '"' && quoted && next === '"') { cell += '"'; i++; }
+        else if (char === '"') quoted = !quoted;
+        else if (char === delimiter && !quoted) { row.push(cell); cell = ''; }
+        else if ((char === '\n' || char === '\r') && !quoted) {
+          if (char === '\r' && next === '\n') i++;
+          row.push(cell); if (row.some(v => v.trim())) matrix.push(row); row = []; cell = '';
+        } else cell += char;
+      }
+      row.push(cell); if (row.some(v => v.trim())) matrix.push(row);
+      const headers = (matrix.shift() || []).map(h => h.trim().toLowerCase().replace(/^\ufeff/, ''));
+      return matrix.map(values => Object.fromEntries(headers.map((h, i) => [h, (values[i] || '').trim()])));
+    }
+
+    const asBool = value => ['1','true','sí','si','yes','y','cumple'].includes(String(value).trim().toLowerCase());
+    const safeText = value => String(value ?? '').trim().replace(/[<>&]/g, '');
+
+    function normalizeRows(records) {
+      return records.map((r, index) => {
+        const rawDate = r.fecha_asignacion || r.fecha || r.date;
+        const parsedDate = rawDate && rawDate.includes('/') ? rawDate.split('/').reverse().join('-') : rawDate;
+        const rawHour = r.hora_asignacion || r.hora || r.hour || '0';
+        const type = safeText(r.tipificacion || r.tipo || 'Sin tipificar');
+        return {
+          id: safeText(r.id_conversacion || r.id || `CSV-${index + 1}`),
+          date: safeText(parsedDate).slice(0, 10),
+          hour: Number.parseInt(rawHour, 10) || 0,
+          schedule: asBool(r.horario_laboral) || String(r.horario_laboral).toLowerCase() === 'in' ? 'in' : 'out',
+          channel: safeText(r.canal || 'Sin canal'), origin: safeText(r.tipo_origen || r.origen || 'Sin origen'),
+          group: safeText(r.grupo || 'Sin grupo'), agent: safeText(r.agente || 'Sin agente'),
+          category: safeText(r.categoria || 'Sin categoría'), type,
+          agentMessage: asBool(r.con_mensaje_agente), typed: type.toLowerCase() !== 'sin tipificar' && type !== '',
+          sale: Number(r.venta || r.ventas || 0) || 0, sla: asBool(r.cumple_sla),
+          firstResponse: Number(String(r.tiempo_primera_respuesta || r.primera_respuesta || 0).replace(',', '.')) || 0,
+          status: safeText(r.estado || 'Sin estado')
+        };
+      }).filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.date));
+    }
+
+    function useCSV(text, sourceName) {
+      const rows = normalizeRows(parseCSV(text));
+      if (!rows.length) throw new Error('No se encontraron filas válidas. Revisa los encabezados y el formato de fecha AAAA-MM-DD.');
+      DATA = rows;
+      NOW = new Date(Math.max(...rows.map(r => new Date(r.date + 'T12:00:00').getTime())));
+      populateAgents();
+      $("dateFilter").value = 'all';
+      $("sourceDescription").textContent = sourceName;
+      $("sourceState").textContent = `${rows.length.toLocaleString('es-CO')} registros cargados`;
+      $("sourceState").classList.add('live');
+      $("freshness").textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+      applyFilters();
+      toast('Fuente de datos actualizada');
+    }
+
+    async function loadPublishedCSV(silent = false) {
+      try {
+        const response = await fetch(`data/atom_latest.csv?ts=${Date.now()}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Archivo no publicado');
+        useCSV(await response.text(), 'data/atom_latest.csv · actualización publicada');
+        return true;
+      } catch (error) {
+        if (!silent) toast('No hay un CSV publicado; se conserva la fuente actual');
+        return false;
+      }
+    }
+
+    function getDateRange(mode) {
+      const end = new Date(NOW); end.setHours(23,59,59,999);
+      let start = new Date(end);
+      if (mode === "today") start.setHours(0,0,0,0);
+      else if (mode === "yesterday") { start.setDate(start.getDate()-1); start.setHours(0,0,0,0); end.setDate(end.getDate()-1); }
+      else if (mode === "7") { start.setDate(start.getDate()-6); start.setHours(0,0,0,0); }
+      else if (mode === "30") { start.setDate(start.getDate()-29); start.setHours(0,0,0,0); }
+      else if (mode === "week") { const day = start.getDay() || 7; start.setDate(start.getDate()-day+1); start.setHours(0,0,0,0); }
+      else return null;
+      return [start,end];
+    }
+
+    function applyFilters(showToast=false) {
+      const dateMode = $("dateFilter").value;
+      const range = getDateRange(dateMode);
+      const schedule = $("scheduleFilter").value;
+      const channel = $("channelFilter").value;
+      const group = $("groupFilter").value;
+      const agent = $("agentFilter").value;
+      const type = $("typeFilter").value;
+      filtered = DATA.filter(r => {
+        const d = new Date(r.date+"T12:00:00");
+        return (!range || (d>=range[0] && d<=range[1])) &&
+          (schedule === "all" || r.schedule === schedule) &&
+          (channel === "all" || r.channel === channel) &&
+          (group === "all" || r.group === group) &&
+          (agent === "all" || r.agent === agent) &&
+          (type === "all" || r.type === type);
+      });
+      renderAll();
+      renderFilterChips();
+      if (showToast) toast("Filtros aplicados");
+    }
+
+    function metrics(rows) {
+      const total = rows.length;
+      const messages = rows.filter(r=>r.agentMessage).length;
+      const typed = rows.filter(r=>r.typed).length;
+      const sales = rows.reduce((s,r)=>s+r.sale,0);
+      const sla = rows.filter(r=>r.sla).length;
+      const avgFrt = total ? rows.reduce((s,r)=>s+r.firstResponse,0)/total : 0;
+      return { total,messages,typed,sales,sla, avgFrt, messagePct:pct(messages,total), typedPct:pct(typed,total), slaPct:pct(sla,total) };
+    }
+
+    function renderKPIs() {
+      const m = metrics(filtered);
+      $("kpiAssigned").textContent = m.total;
+      $("kpiMessage").textContent = m.messagePct + "%";
+      $("kpiTyped").textContent = m.typedPct + "%";
+      $("kpiSales").textContent = m.sales;
+      $("kpiSla").textContent = m.slaPct + "%";
+      $("kpiFrt").textContent = m.avgFrt.toFixed(1) + " min";
+      $("missingTyped").textContent = (m.total-m.typed) + " pendientes";
+      $("barMessage").style.width = m.messagePct+"%";
+      $("barTyped").style.width = m.typedPct+"%";
+      $("barSla").style.width = m.slaPct+"%";
+      $("barSales").style.width = Math.min(100, Math.max(2,m.sales*8))+"%";
+      $("healthTyping").textContent = m.typedPct+"%";
+      $("healthMessage").textContent = m.messagePct+"%";
+      $("healthSla").textContent = m.slaPct+"%";
+      const health = Math.round(m.typedPct*.35+m.messagePct*.30+m.slaPct*.35);
+      $("healthScore").textContent = health;
+      const deg = Math.round(health*1.8);
+      $("gaugeRing").style.background = `conic-gradient(from 270deg, var(--lime) 0 ${Math.min(deg*.72,130)}deg, var(--brand-2) ${Math.min(deg*.72,130)}deg ${deg}deg, #e4e9e5 ${deg}deg 180deg, transparent 180deg 360deg)`;
+    }
+
+    function groupTrend(rows, mode) {
+      const map = new Map();
+      rows.forEach(r => {
+        const key = mode === "day" ? r.date : r.hour;
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(r);
+      });
+      let entries = [...map.entries()];
+      entries.sort((a,b)=> a[0]>b[0]?1:-1);
+      if (mode === "hour") entries = entries.filter(([h])=>h>=8&&h<=17);
+      return entries.map(([key, arr]) => ({ key, count: arr.length, sla: pct(arr.filter(x=>x.sla).length,arr.length) }));
+    }
+
+    function renderTrend() {
+      const svg = $("trendChart");
+      const items = groupTrend(filtered, trendMode);
+      const W=820,H=285, left=45,right=35,top=25,bottom=42, base=H-bottom;
+      const plotW=W-left-right, plotH=base-top;
+      const maxCount = Math.max(5,...items.map(x=>x.count));
+      const n = Math.max(1,items.length);
+      const step = plotW/n;
+      const barW = Math.min(56, step*.55);
+      let html = `<defs><linearGradient id="lineArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4e9eef"/><stop offset="100%" stop-color="#4e9eef" stop-opacity="0"/></linearGradient></defs>`;
+      for (let i=0;i<=4;i++) {
+        const y=top+plotH*i/4;
+        const val=Math.round(maxCount*(1-i/4));
+        html += `<line class="grid-line" x1="${left}" y1="${y}" x2="${W-right}" y2="${y}"/><text class="axis-label" x="${left-8}" y="${y+3}" text-anchor="end">${val}</text>`;
+      }
+      const points=[];
+      items.forEach((it,i)=>{
+        const x=left+step*i+step/2;
+        const h=it.count/maxCount*plotH;
+        const y=base-h;
+        const ly=base-(it.sla/100)*plotH;
+        points.push([x,ly,it]);
+        const label=trendMode==="day"?formatDate(it.key):`${it.key}:00`;
+        html += `<rect class="bar data-hover" data-tip="${label}: ${it.count} conversaciones" x="${x-barW/2}" y="${y}" width="${barW}" height="${h}" rx="7"/>`;
+        html += `<text class="axis-label" x="${x}" y="${base+20}" text-anchor="middle">${label}</text>`;
+        html += `<text class="axis-label" x="${x}" y="${y-7}" text-anchor="middle" style="font-weight:800; fill:var(--text)">${it.count}</text>`;
+      });
+      if (points.length) {
+        const path = points.map((p,i)=>`${i?'L':'M'} ${p[0]} ${p[1]}`).join(' ');
+        const area = `${path} L ${points[points.length-1][0]} ${base} L ${points[0][0]} ${base} Z`;
+        html += `<path class="line-area" d="${area}"/><path class="line-path" d="${path}"/>`;
+        points.forEach(([x,y,it])=> html += `<circle class="line-dot data-hover" data-tip="SLA: ${it.sla}%" cx="${x}" cy="${y}" r="4"/>`);
+      }
+      if (!items.length) html += `<text x="410" y="140" text-anchor="middle" class="axis-label" style="font-size:13px">No hay datos para los filtros seleccionados</text>`;
+      svg.innerHTML=html;
+      attachTooltips();
+    }
+
+    function renderDonut() {
+      const typedRows = filtered.filter(r=>r.typed);
+      const counts = TYPES.reduce((o,t)=>(o[t]=typedRows.filter(r=>r.type===t).length,o),{});
+      const total=typedRows.length;
+      let acc=0, parts=[];
+      TYPES.forEach(t=>{ const p=total?counts[t]/total*100:0; parts.push(`${COLORS[t]} ${acc}% ${acc+p}%`); acc+=p; });
+      $("donut").style.background = total ? `conic-gradient(${parts.join(',')})` : `conic-gradient(#e5ebe7 0 100%)`;
+      $("donutTotal").textContent=total;
+      $("typeLegend").innerHTML = TYPES.map(t=>`<div class="legend-row"><i style="background:${COLORS[t]}"></i><span>${t}</span><b>${total?pct(counts[t],total):0}%</b></div>`).join('');
+    }
+
+    function renderChannels() {
+      const total=filtered.length;
+      $("channelList").innerHTML=CHANNELS.map((c,i)=>{
+        const count=filtered.filter(r=>r.channel===c).length, p=pct(count,total);
+        const icon=["☏","◫","◎","f"][i];
+        return `<div class="channel-row"><div class="channel-name"><span class="channel-icon">${icon}</span>${c}</div><div class="progress"><i style="width:${p}%"></i></div><b>${p}%</b></div>`;
+      }).join('');
+    }
+
+    function agentStats() {
+      return [...new Set(filtered.map(r=>r.agent).filter(Boolean))].map(a=>{
+        const rows=filtered.filter(r=>r.agent===a), m=metrics(rows);
+        return {agent:a,...m};
+      }).filter(x=>x.total>0).sort((a,b)=>sortBySla?b.slaPct-a.slaPct:b.total-a.total);
+    }
+
+    function renderAgents() {
+      $("agentTable").innerHTML=agentStats().map((a,i)=>{
+        const initials=a.agent.split(' ').map(x=>x[0]).slice(0,2).join('');
+        const status=a.slaPct>=80?["good","Óptimo"]:a.slaPct>=50?["warn","Atención"]:["bad","Crítico"];
+        return `<tr><td><div class="agent"><div class="avatar">${initials}</div><div><strong>${a.agent}</strong><span>${i<2?'Disponible':'En operación'}</span></div></div></td><td><b>${a.total}</b></td><td>${a.messagePct}%</td><td>${a.typedPct}%</td><td><b>${a.slaPct}%</b></td><td>${a.avgFrt.toFixed(1)} min</td><td><span class="pill ${status[0]}">${status[1]}</span></td></tr>`;
+      }).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">No hay agentes con datos en este periodo.</td></tr>`;
+    }
+
+    function renderHeatmap() {
+      const hours=[8,9,10,11,12,13,14,15,16,17];
+      const days=["Lun","Mar","Mié","Jue","Vie"];
+      let html='<div></div>'+hours.map(h=>`<div class="hlabel">${h}:00</div>`).join('');
+      const monday=new Date(NOW); monday.setHours(12,0,0,0); monday.setDate(monday.getDate()-((monday.getDay()+6)%7));
+      days.forEach((day,di)=>{
+        const date=new Date(monday); date.setDate(monday.getDate()+di); const key=iso(date);
+        html+=`<div class="day">${day}</div>`;
+        hours.forEach(h=>{
+          const count=filtered.filter(r=>r.date===key&&r.hour===h).length;
+          const opacity=Math.min(.95,.08+count*.18);
+          html+=`<div class="heat-cell" style="opacity:${opacity}" data-tip="${day} ${h}:00 · ${count} conversaciones"></div>`;
+        });
+      });
+      $("heatmap").innerHTML=html;
+    }
+
+    function renderActions() {
+      const m=metrics(filtered);
+      const actions=[];
+      if (m.total-m.typed>0) actions.push({icon:"!", title:`${m.total-m.typed} conversaciones sin tipificar`, text:"Revisa cierres pendientes para proteger la calidad del reporte.", action:"Ver"});
+      if (m.slaPct<80) actions.push({icon:"◷", title:`SLA en ${m.slaPct}%`, text:"Identifica las franjas con mayor carga y redistribuye capacidad.", action:"Analizar"});
+      const noMessage=m.total-m.messages;
+      if(noMessage>0) actions.push({icon:"✉", title:`${noMessage} conversaciones sin mensaje`, text:"Valida asignaciones sin gestión o conversaciones abandonadas.", action:"Revisar"});
+      if(!actions.length) actions.push({icon:"✓",title:"Sin alertas críticas",text:"Los indicadores principales están dentro de los objetivos.",action:"Detalle"});
+      $("actionCount").textContent=`${actions.length} alerta${actions.length===1?'':'s'}`;
+      $("actionsList").innerHTML=actions.map(a=>`<div class="action-item"><div class="action-icon">${a.icon}</div><div><h4>${a.title}</h4><p>${a.text}</p></div><button class="action-link">${a.action} →</button></div>`).join('');
+      document.querySelectorAll('.action-link').forEach(b=>b.addEventListener('click',()=>openDetail('actions')));
+    }
+
+    function renderFilterChips() {
+      const pairs = [
+        ["Fecha", $("dateFilter").selectedOptions[0].text],
+        ["Horario", $("scheduleFilter").selectedOptions[0].text],
+        ["Canal", $("channelFilter").selectedOptions[0].text],
+        ["Grupo", $("groupFilter").selectedOptions[0].text],
+        ["Agente", $("agentFilter").selectedOptions[0].text],
+        ["Tipificación", $("typeFilter").selectedOptions[0].text]
+      ];
+      $("activeFilters").innerHTML=pairs.filter(([,v])=>!v.startsWith('Todos')&&!v.startsWith('Todas')).map(([k,v])=>`<span class="chip">${k}: ${v}</span>`).join('');
+    }
+
+    function renderAll() { renderKPIs(); renderTrend(); renderDonut(); renderChannels(); renderAgents(); renderHeatmap(); renderActions(); }
+
+    function attachTooltips() {
+      const tip=$("chartTooltip");
+      document.querySelectorAll('.data-hover').forEach(el=>{
+        el.addEventListener('mousemove',e=>{ tip.textContent=el.dataset.tip; tip.style.left=e.clientX+'px'; tip.style.top=e.clientY+'px'; tip.style.opacity=1; });
+        el.addEventListener('mouseleave',()=>tip.style.opacity=0);
+      });
+    }
+
+    function openDetail(type) {
+      const m=metrics(filtered);
+      const titles={assigned:"Conversaciones asignadas",message:"Conversaciones con mensaje",typed:"Tipificación",sales:"Ventas",sla:"Nivel de servicio",frt:"Primera respuesta",actions:"Alertas operativas",integration:"Integración de datos"};
+      $("modalTitle").textContent=titles[type]||"Detalle";
+      if(type==='integration') {
+        $("modalBody").innerHTML=`<p style="font-size:12px;line-height:1.6;color:var(--muted)">Este prototipo espera una tabla con una fila por conversación. Los campos mínimos recomendados son:</p><div class="table-wrap"><table><thead><tr><th>Campo</th><th>Uso</th></tr></thead><tbody>${['fecha_asignacion','hora_asignacion','horario_laboral','canal','tipo_origen','grupo','agente','grupo_tipificacion','tipificacion','categoria','con_mensaje_agente','venta','cumple_sla','tiempo_primera_respuesta'].map(f=>`<tr><td><code>${f}</code></td><td>Alimenta filtros, KPI o desgloses del dashboard.</td></tr>`).join('')}</tbody></table></div>`;
+      } else if(type==='actions') {
+        $("modalBody").innerHTML=$("actionsList").innerHTML;
+      } else {
+        const predicate={message:r=>r.agentMessage,typed:r=>r.typed,sales:r=>r.sale>0,sla:r=>r.sla,frt:r=>true,assigned:r=>true}[type]||(()=>true);
+        const rows=filtered.filter(predicate).slice(0,50);
+        $("modalBody").innerHTML=`<div class="table-wrap"><table><thead><tr><th>ID</th><th>Fecha</th><th>Hora</th><th>Canal</th><th>Grupo</th><th>Agente</th><th>Tipificación</th><th>SLA</th><th>1.ª respuesta</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.id}</td><td>${r.date}</td><td>${r.hour}:00</td><td>${r.channel}</td><td>${r.group}</td><td>${r.agent}</td><td>${r.type}</td><td>${r.sla?'Sí':'No'}</td><td>${r.firstResponse} min</td></tr>`).join('')||'<tr><td colspan="9">Sin registros</td></tr>'}</tbody></table></div><p style="color:var(--muted);font-size:10px">Mostrando hasta 50 registros de ${rows.length} disponibles.</p>`;
+      }
+      $("modalBackdrop").classList.add('open');
+    }
+
+    function exportCSV() {
+      const headers=["id","fecha_asignacion","hora","horario_laboral","canal","tipo_origen","grupo","agente","categoria","tipificacion","con_mensaje_agente","venta","cumple_sla","tiempo_primera_respuesta","estado"];
+      const lines=[headers.join(',')];
+      filtered.forEach(r=>lines.push([r.id,r.date,r.hour,r.schedule,r.channel,r.origin,r.group,r.agent,r.category,r.type,r.agentMessage,r.sale,r.sla,r.firstResponse,r.status].map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')));
+      const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+      const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download='atom_reporte_filtrado.csv'; a.click(); URL.revokeObjectURL(url); toast('CSV generado');
+    }
+
+    function toast(msg) { const t=$("toast"); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
+
+    $("applyBtn").addEventListener('click',()=>applyFilters(true));
+    $("clearBtn").addEventListener('click',()=>{ ["scheduleFilter","channelFilter","groupFilter","agentFilter","typeFilter"].forEach(id=>$(id).value='all'); $("dateFilter").value='week'; applyFilters(true); });
+    $("refreshBtn").addEventListener('click',()=>loadPublishedCSV(false));
+    $("uploadBtn").addEventListener('click',()=>$("csvInput").click());
+    $("csvInput").addEventListener('change', async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try { useCSV(await file.text(), `${file.name} · cargado en este navegador`); }
+      catch (error) { toast(error.message); }
+      event.target.value = '';
+    });
+    $("exportBtn").addEventListener('click',exportCSV); $("exportNav").addEventListener('click',e=>{e.preventDefault();exportCSV();});
+    $("themeBtn").addEventListener('click',()=>document.body.classList.toggle('dark'));
+    $("connectBtn").addEventListener('click',()=>openDetail('integration'));
+    $("issuesBtn").addEventListener('click',()=>openDetail('actions'));
+    $("modalClose").addEventListener('click',()=>$("modalBackdrop").classList.remove('open'));
+    $("modalBackdrop").addEventListener('click',e=>{if(e.target===$("modalBackdrop"))$("modalBackdrop").classList.remove('open');});
+    document.querySelectorAll('.kpi').forEach(k=>{
+      k.tabIndex=0; k.setAttribute('role','button');
+      k.addEventListener('click',()=>openDetail(k.dataset.detail));
+      k.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(k.dataset.detail);}});
+    });
+    $("sortAgentsBtn").addEventListener('click',()=>{sortBySla=!sortBySla; $("sortAgentsBtn").textContent=sortBySla?'Ordenar por volumen':'Ordenar por SLA';renderAgents();});
+    document.querySelectorAll('#trendMode button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#trendMode button').forEach(x=>x.classList.remove('active'));b.classList.add('active');trendMode=b.dataset.mode;renderTrend();}));
+    document.querySelectorAll('.nav a[data-nav]').forEach(a=>a.addEventListener('click',()=>{document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active');}));
+
+    populateAgents();
+    applyFilters();
+  </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+id_conversacion,fecha_asignacion,hora_asignacion,horario_laboral,canal,tipo_origen,grupo,agente,grupo_tipificacion,tipificacion,categoria,con_mensaje_agente,venta,cumple_sla,tiempo_primera_respuesta,estado
+ATOM-001,2026-07-10,09:15,true,WhatsApp,Orgánico,Team Comercial,Agente Demo,Seguimiento,Seguimiento,Comercial,true,0,true,1.8,Abierta
+ATOM-002,2026-07-10,09:42,true,Webchat,Campaña,Soporte,Agente Demo,Fin positivo,Fin positivo,Servicio,true,1,false,3.2,Cerrada
+
