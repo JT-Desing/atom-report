@@ -321,15 +321,19 @@
     }
     .hero-visual {
       position: absolute;
-      right: 16px;
-      bottom: 8px;
-      width: 40%;
-      height: 82%;
+      right: 18px;
+      bottom: 10px;
+      width: clamp(300px, 42%, 470px);
+      height: 84%;
       z-index: 1;
     }
-    .hero-bars { position: absolute; inset: 22px 18px 18px 32px; display: flex; align-items: end; gap: 9px; }
-    .hero-bars i { display: block; flex: 1; border-radius: 10px 10px 5px 5px; background: linear-gradient(180deg, #cbef7e, #7ab952); opacity: .92; }
-    .hero-line { position: absolute; inset: 0; }
+    .hero-bars { position: absolute; inset: 22px 18px 18px 32px; display: flex; align-items: end; gap: 10px; }
+    .hero-bars i { display: block; flex: 1; border-radius: 10px 10px 5px 5px; background: linear-gradient(180deg, #cbef7e, #7ab952); opacity: .92; transform-origin: bottom; animation: heroBarRise .75s cubic-bezier(.2,.75,.25,1) both; }
+    .hero-bars i:nth-child(2) { animation-delay: .07s; } .hero-bars i:nth-child(3) { animation-delay: .14s; } .hero-bars i:nth-child(4) { animation-delay: .21s; } .hero-bars i:nth-child(5) { animation-delay: .28s; } .hero-bars i:nth-child(6) { animation-delay: .35s; }
+    .hero-line { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .hero-line path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: drawLine 1.1s .25s ease forwards; }
+    .hero-line circle { opacity: 0; animation: dotIn .25s ease forwards; }
+    .hero-line circle:nth-of-type(1) { animation-delay:.38s } .hero-line circle:nth-of-type(2) { animation-delay:.50s } .hero-line circle:nth-of-type(3) { animation-delay:.62s } .hero-line circle:nth-of-type(4) { animation-delay:.74s } .hero-line circle:nth-of-type(5) { animation-delay:.86s } .hero-line circle:nth-of-type(6) { animation-delay:.98s }
 
     .health-card {
       background: var(--surface);
@@ -401,6 +405,8 @@
     .delta.down { background: var(--danger-soft); color: var(--danger); }
     .kpi-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--line); }
     .kpi-bar i { display: block; height: 100%; background: var(--brand-2); }
+    .kpi-grid .kpi { animation: cardIn .46s cubic-bezier(.2,.8,.25,1) both; }
+    .kpi-grid .kpi:nth-child(2) { animation-delay:.05s } .kpi-grid .kpi:nth-child(3) { animation-delay:.10s } .kpi-grid .kpi:nth-child(4) { animation-delay:.15s } .kpi-grid .kpi:nth-child(5) { animation-delay:.20s } .kpi-grid .kpi:nth-child(6) { animation-delay:.25s }
 
     .dashboard-grid {
       display: grid;
@@ -440,11 +446,11 @@
     #trendChart { width: 100%; height: 285px; display: block; }
     .axis-label { fill: var(--muted); font-size: 9px; }
     .grid-line { stroke: var(--line); stroke-width: 1; }
-    .bar { fill: var(--orange); opacity: .86; transition: .2s; }
+    .bar { fill: var(--orange); opacity: .86; transition: .2s; transform-box: fill-box; transform-origin: center bottom; animation: chartBarRise .6s cubic-bezier(.2,.8,.25,1) both; }
     .bar:hover { opacity: 1; }
-    .line-path { fill: none; stroke: #4e9eef; stroke-width: 2.5; }
+    .line-path { fill: none; stroke: #4e9eef; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: drawLine .9s .2s ease forwards; }
     .line-area { fill: url(#lineArea); opacity: .18; }
-    .line-dot { fill: var(--surface); stroke: #4e9eef; stroke-width: 2; }
+    .line-dot { fill: var(--surface); stroke: #4e9eef; stroke-width: 2; transform-box: fill-box; transform-origin:center; animation: dotIn .25s .75s ease both; }
     .chart-tooltip {
       position: fixed;
       pointer-events: none;
@@ -457,7 +463,14 @@
       opacity: 0;
       transform: translate(-50%, -110%);
       box-shadow: 0 8px 20px rgba(0,0,0,.2);
+      max-width: 245px;
+      line-height: 1.4;
+      text-align: left;
     }
+    .metric-info { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; flex: 0 0 auto; border: 1px solid var(--line); background: var(--surface-soft); color: var(--brand); font-size: 10px; font-weight: 900; font-style: normal; cursor: help; }
+    .metric-info:hover, .metric-info:focus-visible { color: #fff; background: var(--brand); border-color: var(--brand); outline: 3px solid rgba(200,16,46,.2); }
+    .panel-title-line { display: flex; align-items: center; gap: 7px; }
+    th[data-help] { cursor: help; text-decoration: underline dotted; text-underline-offset: 3px; }
 
     .channel-list { display: grid; gap: 12px; margin-top: 4px; }
     .channel-row { display: grid; grid-template-columns: 110px 1fr 42px; gap: 10px; align-items: center; }
@@ -474,6 +487,7 @@
       border-radius: 50%;
       background: conic-gradient(var(--cyan) 0 58%, var(--danger) 58% 84%, var(--lime) 84% 100%);
       position: relative;
+      animation: donutIn .65s cubic-bezier(.2,.8,.25,1) both;
       margin: auto;
     }
     .donut::after { content: ""; position: absolute; inset: 29px; border-radius: 50%; background: var(--surface); }
@@ -665,8 +679,15 @@
     .agent-snapshot { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 10px; }
     .agent-snapshot div { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
     .agent-snapshot span { display: block; color: var(--muted); font-size: 9px; font-weight: 700; }
+    .agent-snapshot span[data-help] { cursor:help; text-decoration:underline dotted; text-underline-offset:3px; }
     .agent-snapshot strong { display: block; margin-top: 8px; font-size: 21px; }
     @keyframes pageIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+    @keyframes cardIn { from { opacity:0; transform:translateY(12px) scale(.985); } to { opacity:1; transform:none; } }
+    @keyframes heroBarRise { from { transform:scaleY(0); opacity:.25; } to { transform:scaleY(1); opacity:.92; } }
+    @keyframes chartBarRise { from { transform:scaleY(0); opacity:.25; } to { transform:scaleY(1); opacity:.86; } }
+    @keyframes drawLine { to { stroke-dashoffset:0; } }
+    @keyframes dotIn { from { opacity:0; transform:scale(.3); } to { opacity:1; transform:scale(1); } }
+    @keyframes donutIn { from { opacity:0; transform:scale(.82) rotate(-12deg); } to { opacity:1; transform:none; } }
     body.dark .sidebar { background: var(--surface); }
     body.dark .hero { background: linear-gradient(135deg, #111214, #24262a 70%, #611125); }
     body.dark .brand h1,
@@ -699,6 +720,12 @@
     body.dark select,
     body.dark input { color: #fff; }
     body.dark option { color: #fff; background: #17211c; }
+    body.dark .metric-info { color:#fff; background:#2a3b32; border-color:#506358; }
+    body.dark .metric-info:hover, body.dark .metric-info:focus-visible { background:var(--brand); border-color:var(--brand); }
+    @media (min-width: 1600px) { .app { grid-template-columns: 300px minmax(0,1fr); } .sidebar { padding: 28px 22px; } .main { padding: 26px 34px 42px; } .hero { min-height: 250px; padding: 30px; } .hero h3 { font-size: 28px; } .hero p { font-size: 13px; max-width: 620px; } .hero-visual { width: 46%; max-width: 540px; } .health-card { padding: 26px; } }
+    @media (min-width: 981px) and (max-width: 1280px) { .app { grid-template-columns: 218px minmax(0,1fr); } .main { padding:18px 20px 34px; } .hero-content { max-width:62%; } .hero-visual { width:40%; min-width:270px; } }
+    @media (max-width: 700px) { .overview-grid { gap:12px; } .hero { min-height:230px; padding:20px; } .hero-content { max-width:100%; } .hero-visual { width:65%; min-width:230px; opacity:.2; right:-12px; } .kpi-grid { gap:10px; } .kpi .value { font-size:23px; } }
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.001ms !important; animation-delay:0ms !important; scroll-behavior:auto !important; transition-duration:.001ms !important; } }
     @media (max-width: 980px) { .page-grid.two, .export-center { grid-template-columns: 1fr; } .agent-snapshot { grid-template-columns: repeat(2,minmax(0,1fr)); } }
     @media (max-width: 700px) { .source-strip { align-items: flex-start; flex-direction: column; } .top-actions { flex-wrap: wrap; } .page-header h3 { font-size: 19px; } }
   </style>
@@ -794,12 +821,12 @@
             </div>
             <div class="hero-visual" aria-hidden="true">
               <div class="hero-bars"><i style="height:34%"></i><i style="height:57%"></i><i style="height:45%"></i><i style="height:73%"></i><i style="height:61%"></i><i style="height:88%"></i></div>
-              <svg class="hero-line" viewBox="0 0 320 180" preserveAspectRatio="none"><path d="M10 132 C55 112 68 145 106 107 S176 87 206 72 S260 73 310 35" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="3"/><g fill="#fff"><circle cx="10" cy="132" r="4"/><circle cx="106" cy="107" r="4"/><circle cx="206" cy="72" r="4"/><circle cx="310" cy="35" r="4"/></g></svg>
+              <svg class="hero-line" viewBox="0 0 360 180" preserveAspectRatio="none"><path pathLength="1" d="M16 132 C42 116 58 128 78 112 C98 96 112 101 137 86 C160 72 176 79 198 63 C221 47 240 57 260 43 C282 28 307 34 340 18" fill="none" stroke="rgba(255,255,255,.86)" stroke-width="3"/><g fill="#fff"><circle cx="16" cy="132" r="4"/><circle cx="78" cy="112" r="4"/><circle cx="137" cy="86" r="4"/><circle cx="198" cy="63" r="4"/><circle cx="260" cy="43" r="4"/><circle cx="340" cy="18" r="4"/></g></svg>
             </div>
           </article>
 
           <article class="health-card">
-            <div class="panel-head"><div><h3>Salud operativa</h3><p>Índice compuesto del periodo</p></div><button class="more">•••</button></div>
+            <div class="panel-head"><div><div class="panel-title-line"><h3>Salud operativa</h3><span class="metric-info" tabindex="0" data-help="Resume tipificación, mensajes del agente y nivel de servicio en una sola cifra." aria-label="Qué significa salud operativa">i</span></div><p>Índice compuesto del periodo</p></div></div>
             <div class="gauge-wrap">
               <div class="gauge"><div class="gauge-ring" id="gaugeRing"></div><div class="gauge-value"><strong id="healthScore">58</strong><span>de 100</span></div></div>
               <div class="mini-legend">
@@ -812,12 +839,12 @@
         </div>
 
         <div class="kpi-grid" id="kpiGrid">
-          <article class="kpi" data-detail="assigned"><div class="label">Conversaciones asignadas <span class="icon">⌁</span></div><div class="value" id="kpiAssigned">36</div><div class="foot"><span class="delta up" id="deltaAssigned">+8.3%</span> vs. periodo anterior</div><div class="kpi-bar"><i style="width:72%"></i></div></article>
-          <article class="kpi" data-detail="message"><div class="label">Con mensaje de agente <span class="icon">✉</span></div><div class="value" id="kpiMessage">61%</div><div class="foot"><span class="delta up">+4.1%</span> cobertura del equipo</div><div class="kpi-bar"><i id="barMessage" style="width:61%"></i></div></article>
-          <article class="kpi" data-detail="typed"><div class="label">Tipificadas por agente <span class="icon">⌑</span></div><div class="value" id="kpiTyped">53%</div><div class="foot"><span class="delta down" id="missingTyped">17 pendientes</span> requieren revisión</div><div class="kpi-bar"><i id="barTyped" style="width:53%"></i></div></article>
-          <article class="kpi" data-detail="sales"><div class="label">Ventas registradas <span class="icon">$</span></div><div class="value" id="kpiSales">0</div><div class="foot"><span class="delta down">Sin conversión</span> en el periodo</div><div class="kpi-bar"><i id="barSales" style="width:2%; background:var(--orange)"></i></div></article>
-          <article class="kpi" data-detail="sla"><div class="label">Nivel de servicio <span class="icon">✓</span></div><div class="value" id="kpiSla">19%</div><div class="foot"><span class="delta down">−11.0%</span> objetivo sugerido: 80%</div><div class="kpi-bar"><i id="barSla" style="width:19%; background:var(--danger)"></i></div></article>
-          <article class="kpi" data-detail="frt"><div class="label">Primera respuesta <span class="icon">◷</span></div><div class="value" id="kpiFrt">2.1 min</div><div class="foot"><span class="delta up">−0.4 min</span> mejor que el periodo previo</div><div class="kpi-bar"><i id="barFrt" style="width:68%; background:var(--cyan)"></i></div></article>
+          <article class="kpi" data-detail="assigned"><div class="label">Conversaciones asignadas <span class="icon metric-info" tabindex="0" data-help="Conversaciones que ATOM entregó a un agente durante el periodo." aria-label="Qué significa conversaciones asignadas">i</span></div><div class="value" id="kpiAssigned">36</div><div class="foot"><span class="delta up" id="deltaAssigned">+8.3%</span> vs. periodo anterior</div><div class="kpi-bar"><i style="width:72%"></i></div></article>
+          <article class="kpi" data-detail="message"><div class="label">Con mensaje de agente <span class="icon metric-info" tabindex="0" data-help="Porcentaje de conversaciones donde el agente envió al menos un mensaje." aria-label="Qué significa con mensaje de agente">i</span></div><div class="value" id="kpiMessage">61%</div><div class="foot"><span class="delta up">+4.1%</span> cobertura del equipo</div><div class="kpi-bar"><i id="barMessage" style="width:61%"></i></div></article>
+          <article class="kpi" data-detail="typed"><div class="label">Tipificadas por agente <span class="icon metric-info" tabindex="0" data-help="Porcentaje de conversaciones que el agente clasificó con un resultado o motivo." aria-label="Qué significa tipificadas por agente">i</span></div><div class="value" id="kpiTyped">53%</div><div class="foot"><span class="delta down" id="missingTyped">17 pendientes</span> requieren revisión</div><div class="kpi-bar"><i id="barTyped" style="width:53%"></i></div></article>
+          <article class="kpi" data-detail="sales"><div class="label">Ventas registradas <span class="icon metric-info" tabindex="0" data-help="Conversaciones que terminaron marcadas como venta en ATOM." aria-label="Qué significa ventas registradas">i</span></div><div class="value" id="kpiSales">0</div><div class="foot"><span class="delta down">Sin conversión</span> en el periodo</div><div class="kpi-bar"><i id="barSales" style="width:2%; background:var(--orange)"></i></div></article>
+          <article class="kpi" data-detail="sla"><div class="label">Nivel de servicio <span class="icon metric-info" tabindex="0" data-help="Porcentaje de conversaciones atendidas dentro del tiempo objetivo definido." aria-label="Qué significa nivel de servicio">i</span></div><div class="value" id="kpiSla">19%</div><div class="foot"><span class="delta down">−11.0%</span> objetivo sugerido: 80%</div><div class="kpi-bar"><i id="barSla" style="width:19%; background:var(--danger)"></i></div></article>
+          <article class="kpi" data-detail="frt"><div class="label">Primera respuesta <span class="icon metric-info" tabindex="0" data-help="Tiempo típico desde que se asigna la conversación hasta la primera respuesta del agente." aria-label="Qué significa primera respuesta">i</span></div><div class="value" id="kpiFrt">2.1 min</div><div class="foot"><span class="delta up">−0.4 min</span> mejor que el periodo previo</div><div class="kpi-bar"><i id="barFrt" style="width:68%; background:var(--cyan)"></i></div></article>
         </div>
       </section>
 
@@ -826,7 +853,7 @@
         <div class="stack">
           <article class="panel">
             <div class="panel-head">
-              <div><h3>Volumen y nivel de servicio</h3><p>Conversaciones asignadas frente al porcentaje dentro del SLA</p></div>
+              <div><div class="panel-title-line"><h3>Volumen y nivel de servicio</h3><span class="metric-info" tabindex="0" data-help="Las barras muestran conversaciones asignadas; la línea muestra el porcentaje atendido a tiempo." aria-label="Cómo leer la gráfica de volumen y servicio">i</span></div><p>Conversaciones asignadas frente al porcentaje dentro del SLA</p></div>
               <div class="segmented" id="trendMode"><button class="active" data-mode="day">Día</button><button data-mode="hour">Hora</button></div>
             </div>
             <div class="chart-wrap"><svg id="trendChart" viewBox="0 0 820 285" preserveAspectRatio="none"></svg></div>
@@ -836,34 +863,34 @@
             <div class="panel-head"><div><h3>Rendimiento por agente</h3><p>Productividad, cobertura, tipificación y cumplimiento del SLA</p></div><button class="secondary-btn" id="sortAgentsBtn">Ordenar por SLA</button></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Agente</th><th>Asignadas</th><th>Con mensaje</th><th>Tipificadas</th><th>SLA</th><th>1.ª respuesta</th><th>Respuesta total</th><th>Estado</th></tr></thead>
+                <thead><tr><th>Agente</th><th tabindex="0" data-help="Conversaciones que recibió el agente.">Asignadas</th><th tabindex="0" data-help="Porcentaje donde el agente envió al menos un mensaje.">Con mensaje</th><th tabindex="0" data-help="Porcentaje que el agente clasificó con un resultado.">Tipificadas</th><th tabindex="0" data-help="Porcentaje atendido dentro del tiempo objetivo.">SLA</th><th tabindex="0" data-help="Tiempo típico hasta la primera respuesta del agente.">1.ª respuesta</th><th tabindex="0" data-help="Tiempo típico de respuesta durante toda la conversación.">Respuesta total</th><th tabindex="0" data-help="Lectura rápida del cumplimiento del nivel de servicio.">Estado</th></tr></thead>
                 <tbody id="agentTable"></tbody>
               </table>
             </div>
           </article>
 
           <article class="panel">
-            <div class="panel-head"><div><h3>Mapa de carga por hora</h3><p>Intensidad de conversaciones por día y franja horaria</p></div><span class="pill good">Mayor intensidad = tono más oscuro</span></div>
+            <div class="panel-head"><div><div class="panel-title-line"><h3>Mapa de carga por hora</h3><span class="metric-info" tabindex="0" data-help="Muestra en qué días y horas se concentra más trabajo." aria-label="Qué significa mapa de carga">i</span></div><p>Intensidad de conversaciones por día y franja horaria</p></div><span class="pill good">Mayor intensidad = tono más oscuro</span></div>
             <div class="heatmap" id="heatmap"></div>
           </article>
         </div>
 
         <div class="stack">
           <article class="panel" id="typifications">
-            <div class="panel-head"><div><h3>Tipificaciones por grupo</h3><p>Distribución de cierres y seguimientos</p></div><button class="more">•••</button></div>
+            <div class="panel-head"><div><div class="panel-title-line"><h3>Tipificaciones por grupo</h3><span class="metric-info" tabindex="0" data-help="Cómo terminaron o quedaron clasificadas las conversaciones. ATOM toma la última tipificación." aria-label="Qué significa tipificaciones por grupo">i</span></div><p>Distribución de cierres y seguimientos</p></div></div>
             <div class="donut-section">
-              <div class="donut" id="donut"><div class="donut-center"><strong id="donutTotal">19</strong><span>Total tipificadas</span></div></div>
+              <div class="donut" id="donut"><div class="donut-center" tabindex="0" data-help="Cantidad total de conversaciones que tienen una clasificación final."><strong id="donutTotal">19</strong><span>Total tipificadas</span></div></div>
               <div class="legend" id="typeLegend"></div>
             </div>
           </article>
 
           <article class="panel" id="channels">
-            <div class="panel-head"><div><h3>Distribución por canal</h3><p>Participación del volumen asignado</p></div><button class="more">•••</button></div>
+            <div class="panel-head"><div><div class="panel-title-line"><h3>Distribución por canal</h3><span class="metric-info" tabindex="0" data-help="Indica de dónde llegaron las conversaciones: WhatsApp, web, redes u otros canales." aria-label="Qué significa distribución por canal">i</span></div><p>Participación del volumen asignado</p></div></div>
             <div class="channel-list" id="channelList"></div>
           </article>
 
           <article class="panel">
-            <div class="panel-head"><div><h3>Centro de acciones</h3><p>Excepciones que requieren seguimiento</p></div><span class="pill warn" id="actionCount">3 alertas</span></div>
+            <div class="panel-head"><div><h3>Centro de acciones</h3><p>Excepciones que requieren seguimiento</p></div><span class="pill warn" id="actionCount" tabindex="0" data-help="Cantidad de situaciones que conviene revisar en este periodo.">3 alertas</span></div>
             <div class="actions-list" id="actionsList"></div>
           </article>
         </div>
@@ -1155,14 +1182,22 @@
       return { total,messages,typed,sales,sla, avgFrt, messagePct:pct(messages,total), typedPct:pct(typed,total), slaPct:pct(sla,total) };
     }
 
+    function animateNumber(element, end, format=value=>Math.round(value), duration=650) {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) { element.textContent=format(end); return; }
+      const start=Number(element.dataset.value||0), started=performance.now();
+      element.dataset.value=end;
+      const tick=now=>{const progress=Math.min(1,(now-started)/duration),eased=1-Math.pow(1-progress,3);element.textContent=format(start+(end-start)*eased);if(progress<1)requestAnimationFrame(tick);};
+      requestAnimationFrame(tick);
+    }
+
     function renderKPIs() {
       const m = metrics(filtered);
-      $("kpiAssigned").textContent = m.total;
-      $("kpiMessage").textContent = m.messagePct + "%";
-      $("kpiTyped").textContent = m.typedPct + "%";
-      $("kpiSales").textContent = m.sales;
-      $("kpiSla").textContent = m.slaPct + "%";
-      $("kpiFrt").textContent = m.avgFrt.toFixed(1) + " min";
+      animateNumber($("kpiAssigned"),m.total);
+      animateNumber($("kpiMessage"),m.messagePct,value=>Math.round(value)+"%");
+      animateNumber($("kpiTyped"),m.typedPct,value=>Math.round(value)+"%");
+      animateNumber($("kpiSales"),m.sales);
+      animateNumber($("kpiSla"),m.slaPct,value=>Math.round(value)+"%");
+      animateNumber($("kpiFrt"),m.avgFrt,value=>value.toFixed(1)+" min");
       $("missingTyped").textContent = (m.total-m.typed) + " pendientes";
       $("barMessage").style.width = m.messagePct+"%";
       $("barTyped").style.width = m.typedPct+"%";
@@ -1172,7 +1207,7 @@
       $("healthMessage").textContent = m.messagePct+"%";
       $("healthSla").textContent = m.slaPct+"%";
       const health = Math.round(m.typedPct*.35+m.messagePct*.30+m.slaPct*.35);
-      $("healthScore").textContent = health;
+      animateNumber($("healthScore"),health);
       const deg = Math.round(health*1.8);
       $("gaugeRing").style.background = `conic-gradient(from 270deg, var(--lime) 0 ${Math.min(deg*.72,130)}deg, var(--brand-2) ${Math.min(deg*.72,130)}deg ${deg}deg, #e4e9e5 ${deg}deg 180deg, transparent 180deg 360deg)`;
     }
@@ -1220,7 +1255,7 @@
       if (points.length) {
         const path = points.map((p,i)=>`${i?'L':'M'} ${p[0]} ${p[1]}`).join(' ');
         const area = `${path} L ${points[points.length-1][0]} ${base} L ${points[0][0]} ${base} Z`;
-        html += `<path class="line-area" d="${area}"/><path class="line-path" d="${path}"/>`;
+        html += `<path class="line-area" d="${area}"/><path class="line-path" pathLength="1" d="${path}"/>`;
         points.forEach(([x,y,it])=> html += `<circle class="line-dot data-hover" data-tip="SLA: ${it.sla}%" cx="${x}" cy="${y}" r="4"/>`);
       }
       if (!items.length) html += `<text x="410" y="140" text-anchor="middle" class="axis-label" style="font-size:13px">${DATA_MODE==='pdf'?'El PDF no expone este desglose como datos tabulares':'No hay datos para los filtros seleccionados'}</text>`;
@@ -1287,11 +1322,11 @@
 
     function renderGroups() {
       const snapshot=metrics(filtered);
-      $("agentSnapshotTotal").textContent=snapshot.total;
-      $("agentSnapshotMessage").textContent=snapshot.messagePct+'%';
-      $("agentSnapshotTyped").textContent=snapshot.typedPct+'%';
-      $("agentSnapshotSla").textContent=snapshot.slaPct+'%';
-      $("agentSnapshotFrt").textContent=snapshot.avgFrt.toFixed(1)+' min';
+      animateNumber($("agentSnapshotTotal"),snapshot.total);
+      animateNumber($("agentSnapshotMessage"),snapshot.messagePct,value=>Math.round(value)+'%');
+      animateNumber($("agentSnapshotTyped"),snapshot.typedPct,value=>Math.round(value)+'%');
+      animateNumber($("agentSnapshotSla"),snapshot.slaPct,value=>Math.round(value)+'%');
+      animateNumber($("agentSnapshotFrt"),snapshot.avgFrt,value=>value.toFixed(1)+' min');
       const body=$("groupTable"); if(!body) return;
       if(DATA_MODE!=='pdf') { body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:26px">El resumen detallado por grupos está disponible en el corte estático de los PDF.</td></tr>'; return; }
       body.innerHTML=PDF_GROUP_STATS.map(([group,assigned,message,typed,sla,first,total,reassignment,abandonment])=>`<tr><td><strong>${escapeHTML(group)}</strong></td><td><b>${assigned}</b></td><td>${message}%</td><td>${typed}%</td><td><b>${sla}%</b></td><td>${Number.isFinite(first)?first.toFixed(2)+' min':'Sin dato'}</td><td>${Number.isFinite(total)?total.toFixed(2)+' min':'Sin dato'}</td><td>${Number.isFinite(reassignment)?reassignment+'%':'Sin dato'}</td><td>${Number.isFinite(abandonment)?abandonment+'%':'Sin dato'}</td></tr>`).join('');
@@ -1329,6 +1364,25 @@
       document.querySelectorAll('.data-hover').forEach(el=>{
         el.addEventListener('mousemove',e=>{ tip.textContent=el.dataset.tip; tip.style.left=e.clientX+'px'; tip.style.top=e.clientY+'px'; tip.style.opacity=1; });
         el.addEventListener('mouseleave',()=>tip.style.opacity=0);
+      });
+    }
+
+    function attachMetricHelp() {
+      const tip=$("chartTooltip");
+      const show=(element,event)=>{
+        tip.textContent=element.dataset.help;
+        const rect=element.getBoundingClientRect(),x=event?.clientX||rect.left+rect.width/2,y=event?.clientY||rect.top;
+        tip.style.left=Math.max(130,Math.min(innerWidth-130,x))+'px';tip.style.top=Math.max(70,y-8)+'px';tip.style.opacity=1;
+      };
+      const hide=()=>tip.style.opacity=0;
+      document.querySelectorAll('[data-help]').forEach(element=>{
+        element.addEventListener('mouseenter',event=>show(element,event));
+        element.addEventListener('mousemove',event=>show(element,event));
+        element.addEventListener('mouseleave',hide);
+        element.addEventListener('focus',event=>show(element,event));
+        element.addEventListener('blur',hide);
+        element.addEventListener('click',event=>event.stopPropagation());
+        element.addEventListener('keydown',event=>event.stopPropagation());
       });
     }
 
@@ -1372,8 +1426,8 @@
 
       const performancePage = makePage('performance','Rendimiento','Volumen, SLA y carga operativa','Analiza tendencias y franjas críticas sin mezclar información de agentes o canales.',[trendPanel,heatmapPanel]);
       const agentsPage = makePage('agents','Agentes','Desempeño individual del equipo','Compara productividad, cobertura, tipificación, SLA y primera respuesta por agente.',[agentsPanel]);
-      agentsPage.querySelector('.page-grid').insertAdjacentHTML('afterbegin','<div class="agent-snapshot"><div><span>Conversaciones asignadas</span><strong id="agentSnapshotTotal">450</strong></div><div><span>Con mensaje de agente</span><strong id="agentSnapshotMessage">82%</strong></div><div><span>Tipificadas</span><strong id="agentSnapshotTyped">95%</strong></div><div><span>Nivel de servicio</span><strong id="agentSnapshotSla">56%</strong></div><div><span>Primera respuesta</span><strong id="agentSnapshotFrt">2.3 min</strong></div></div>');
-      agentsPage.querySelector('.page-grid').insertAdjacentHTML('beforeend','<article class="panel"><div class="panel-head"><div><h3>Rendimiento por grupos</h3><p>Volumen, cobertura, SLA y tiempos visibles en los reportes suministrados</p></div><span class="pill good">Corte estático</span></div><div class="table-wrap"><table><thead><tr><th>Grupo</th><th>Asignadas</th><th>Con mensaje</th><th>Tipificadas</th><th>SLA</th><th>1.ª respuesta</th><th>Respuesta total</th><th>Reasignación</th><th>Abandono</th></tr></thead><tbody id="groupTable"></tbody></table></div></article>');
+      agentsPage.querySelector('.page-grid').insertAdjacentHTML('afterbegin','<div class="agent-snapshot"><div><span tabindex="0" data-help="Conversaciones que ATOM entregó a los agentes.">Conversaciones asignadas</span><strong id="agentSnapshotTotal">450</strong></div><div><span tabindex="0" data-help="Porcentaje donde el agente envió al menos un mensaje.">Con mensaje de agente</span><strong id="agentSnapshotMessage">82%</strong></div><div><span tabindex="0" data-help="Porcentaje clasificado con un resultado o motivo.">Tipificadas</span><strong id="agentSnapshotTyped">95%</strong></div><div><span tabindex="0" data-help="Porcentaje atendido dentro del tiempo objetivo.">Nivel de servicio</span><strong id="agentSnapshotSla">56%</strong></div><div><span tabindex="0" data-help="Tiempo típico desde la asignación hasta la primera respuesta.">Primera respuesta</span><strong id="agentSnapshotFrt">2.3 min</strong></div></div>');
+      agentsPage.querySelector('.page-grid').insertAdjacentHTML('beforeend','<article class="panel"><div class="panel-head"><div><div class="panel-title-line"><h3>Rendimiento por grupos</h3><span class="metric-info" tabindex="0" data-help="Compara carga, respuesta y cumplimiento entre equipos." aria-label="Qué significa rendimiento por grupos">i</span></div><p>Volumen, cobertura, SLA y tiempos visibles en los reportes suministrados</p></div><span class="pill good">Corte estático</span></div><div class="table-wrap"><table><thead><tr><th>Grupo</th><th tabindex="0" data-help="Conversaciones entregadas al grupo.">Asignadas</th><th tabindex="0" data-help="Porcentaje donde hubo mensaje de agente.">Con mensaje</th><th tabindex="0" data-help="Porcentaje clasificado con un resultado.">Tipificadas</th><th tabindex="0" data-help="Porcentaje atendido dentro del tiempo objetivo.">SLA</th><th tabindex="0" data-help="Tiempo típico hasta la primera respuesta.">1.ª respuesta</th><th tabindex="0" data-help="Tiempo típico de respuesta durante la conversación.">Respuesta total</th><th tabindex="0" data-help="Porcentaje de conversaciones que pasaron a otro agente.">Reasignación</th><th tabindex="0" data-help="Porcentaje donde el cliente dejó de interactuar.">Abandono</th></tr></thead><tbody id="groupTable"></tbody></table></div></article>');
       const typificationsPage = makePage('typifications','Tipificaciones','Calidad y resultado de las gestiones','Revisa seguimientos, cierres positivos y cierres negativos del periodo.',[typificationsPanel]);
       const channelsPage = makePage('channels','Canales','Distribución de la atención','Identifica qué canales concentran el volumen y requieren mayor capacidad.',[channelsPanel]);
       const exportsPage = makePage('exports','Exportaciones','Gestiona las fuentes y salidas del reporte','Carga una exportación de ATOM o descarga el resultado filtrado.',[]);
@@ -1416,6 +1470,7 @@
     function toast(msg) { const t=$("toast"); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
 
     setupPages();
+    attachMetricHelp();
     $("applyBtn").addEventListener('click',()=>applyFilters(true));
     $("clearBtn").addEventListener('click',()=>{ ["scheduleFilter","channelFilter","groupFilter","agentFilter","typeFilter"].forEach(id=>$(id).value='all'); $("dateFilter").value='week'; applyFilters(true); });
     $("refreshBtn").addEventListener('click',()=>loadPublishedCSV(false));
