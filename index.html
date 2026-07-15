@@ -915,6 +915,7 @@
   </div>
   <div class="toast" id="toast">Actualizado</div>
 
+  <script src="config.js"></script>
   <script>
     const AGENTS = ["Laura Gómez", "Santiago Ruiz", "Mariana Vélez", "Andrés Pérez", "Camila Torres", "Juan Restrepo"];
     const CHANNELS = ["WhatsApp", "Webchat", "Instagram", "Facebook"];
@@ -1122,8 +1123,33 @@
       toast('Fuente de datos actualizada');
     }
 
-    async function loadPublishedCSV(silent = false) {
+    function useJSON(payload, sourceName) {
+      const records = Array.isArray(payload) ? payload : (payload.records || payload.data || []);
+      const rows = normalizeRows(records);
+      if (!rows.length) throw new Error('La fuente publicada no contiene registros válidos.');
+      DATA_MODE = 'api';
+      DATA = rows;
+      NOW = new Date(Math.max(...rows.map(r => new Date(r.date + 'T12:00:00').getTime())));
+      populateAgents();
+      $("dateFilter").value = 'all';
+      $("sourceDescription").textContent = sourceName;
+      $("sourceState").textContent = `${rows.length.toLocaleString('es-CO')} registros cargados`;
+      $("sourceState").classList.add('live');
+      const generatedAt = payload.generated_at ? new Date(payload.generated_at) : new Date();
+      $("freshness").textContent = 'Actualizado: ' + generatedAt.toLocaleString('es-CO',{dateStyle:'short',timeStyle:'short'});
+      applyFilters();
+      toast('Fuente de datos actualizada');
+    }
+
+    async function loadPublishedData(silent = false) {
       try {
+        const endpoint = String(window.ATOM_DATA_ENDPOINT || '').trim();
+        if (endpoint) {
+          const response = await fetch(`${endpoint}${endpoint.includes('?') ? '&' : '?'}ts=${Date.now()}`, { cache: 'no-store' });
+          if (!response.ok) throw new Error(`Fuente ATOM no disponible (${response.status})`);
+          useJSON(await response.json(), 'Amazon S3 · actualización automática de ATOM');
+          return true;
+        }
         const response = await fetch(`data/atom_latest.csv?ts=${Date.now()}`, { cache: 'no-store' });
         if (!response.ok) throw new Error('Archivo no publicado');
         useCSV(await response.text(), 'data/atom_latest.csv · actualización publicada');
@@ -1480,7 +1506,7 @@
     attachMetricHelp();
     $("applyBtn").addEventListener('click',()=>applyFilters(true));
     $("clearBtn").addEventListener('click',()=>{ ["scheduleFilter","channelFilter","groupFilter","agentFilter","typeFilter"].forEach(id=>$(id).value='all'); $("dateFilter").value='week'; applyFilters(true); });
-    $("refreshBtn").addEventListener('click',()=>loadPublishedCSV(false));
+    $("refreshBtn").addEventListener('click',()=>loadPublishedData(false));
     $("uploadBtn").addEventListener('click',()=>$("csvInput").click());
     $("csvInput").addEventListener('change', async event => {
       const file = event.target.files[0];
@@ -1510,6 +1536,10 @@
     populateAgents();
     applyFilters();
     activatePage(location.hash.slice(1)||'overview',false);
+    if (window.ATOM_DATA_ENDPOINT) {
+      loadPublishedData(true);
+      setInterval(()=>loadPublishedData(true), Number(window.ATOM_REFRESH_MS) || 300000);
+    }
   </script>
 </body>
 </html>

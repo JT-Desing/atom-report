@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Ingesta segura S3 para ATOM REPORT
+
+Parameters:
+  SourceBucket:
+    Type: String
+    Default: epayco-atom-marketing
+  SourcePrefix:
+    Type: String
+    Default: marketing/
+  AllowedOrigin:
+    Type: String
+    Default: https://jt-desing.github.io
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Architectures: [x86_64]
+    Timeout: 60
+    MemorySize: 2048
+    Environment:
+      Variables:
+        SOURCE_BUCKET: !Ref SourceBucket
+        SOURCE_PREFIX: !Ref SourcePrefix
+        NORMALIZED_KEY: marketing/dashboard/atom_latest.json
+
+Resources:
+  AtomIngestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: app.ingest_handler
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref SourceBucket
+        - S3WritePolicy:
+            BucketName: !Ref SourceBucket
+      Events:
+        EveryFiveMinutes:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: rate(5 minutes)
+            State: ENABLED
+
+  AtomDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: app.api_handler
+      MemorySize: 256
+      Timeout: 10
+      Environment:
+        Variables:
+          SOURCE_BUCKET: !Ref SourceBucket
+          SOURCE_PREFIX: !Ref SourcePrefix
+          NORMALIZED_KEY: marketing/dashboard/atom_latest.json
+          ALLOWED_ORIGIN: !Ref AllowedOrigin
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref SourceBucket
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins: [!Ref AllowedOrigin]
+          AllowMethods: [GET]
+          AllowHeaders: [content-type]
+          MaxAge: 300
+
+Outputs:
+  AtomDataUrl:
+    Description: Copiar esta URL en ATOM_DATA_ENDPOINT dentro de config.js
+    Value: !GetAtt AtomDataFunctionUrl.FunctionUrl

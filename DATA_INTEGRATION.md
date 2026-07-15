@@ -1,36 +1,32 @@
-# Integración temporal de datos sin API
+# Integración de datos ATOM mediante S3
 
-## Decisión recomendada
+ATOM deposita sus archivos en `s3://epayco-atom-marketing/marketing/`. Una función
+programada revisa esa ruta cada cinco minutos, selecciona el archivo compatible más
+reciente y lo convierte a JSON. Una segunda función entrega ese JSON al dashboard
+sin revelar credenciales del bucket.
 
-Usa GitHub Pages únicamente para la demostración. Para información real, sirve este mismo dashboard en la red interna y automatiza una exportación CSV de ATOM. Un sitio de GitHub Pages y cualquier CSV que descargue desde el repositorio deben considerarse públicos.
+Formatos aceptados: CSV, JSON, JSONL, XLSX, XLSM y Parquet.
 
-## Flujo temporal
+## Comportamiento
 
-1. Un equipo o servidor interno abre ATOM con una cuenta de solo lectura.
-2. Una automatización de navegador (Playwright, Power Automate Desktop o UiPath) inicia sesión y descarga el reporte cada 5–15 minutos.
-3. Un proceso local valida encabezados, zona horaria, duplicados y tipos de datos.
-4. El archivo validado se guarda como `data/atom_latest.csv` en el servidor web interno.
-5. El dashboard consulta ese archivo al abrir y cuando el usuario pulsa **Actualizar**.
+- Si todavía no hay archivos, el dashboard conserva los datos estáticos.
+- Un archivo nuevo se procesa como máximo cinco minutos después.
+- El navegador consulta el endpoint automáticamente cada cinco minutos.
+- Los formatos desconocidos se ignoran y se conserva el último resultado válido.
+- El objeto normalizado se cifra en S3 y nunca se almacena en GitHub.
 
-## Por qué no hacer scraping desde GitHub Pages
+## Activación pendiente de infraestructura
 
-El navegador no puede acceder de forma segura a una sesión autenticada de ATOM desde otro dominio por controles de origen, cookies y CORS. Incluir credenciales en JavaScript expondría la cuenta. Además, un workflow en GitHub con datos reales podría dejar los registros en artefactos, logs o historial Git.
+El código está en `backend/`. Infraestructura debe desplegar `backend/template.yaml`
+con AWS SAM y copiar el output `AtomDataUrl` en `config.js`. Las claves encontradas
+en el archivo local no se utilizan ni se publican; el despliegue debe usar un rol IAM.
 
-## Puesta en marcha
+La URL sin autenticación solo es apropiada para datos agregados autorizados para
+exposición. Si los reportes incluyen datos personales, clientes o conversaciones,
+el acceso debe protegerse con Cognito/CloudFront o servirse en un entorno interno.
 
-1. Confirma con Seguridad/ATOM que la automatización de interfaz está permitida y crea una cuenta técnica de solo lectura con MFA gestionado.
-2. Identifica el flujo estable: URL del reporte, filtros, botón de exportación y nombre del archivo descargado.
-3. Ejecuta el robot en infraestructura interna, no en el navegador de cada usuario.
-4. Conserva secretos en el almacén corporativo; nunca en el HTML, el CSV o el repositorio.
-5. Antes de reemplazar el archivo, valida todos los campos y escribe primero a un archivo temporal para evitar lecturas parciales.
-6. Registra fecha de extracción, número de filas, duración y error; alerta si la fuente lleva más de 20 minutos sin actualizarse.
-7. Retén solo la ventana de datos necesaria y elimina PII que el dashboard no use.
+## Primera entrega
 
-## Camino preferido mientras llega la API
-
-Si ATOM permite programar reportes por correo, SFTP o carpeta compartida, usa esa exportación antes que scraping. Es más estable, auditable y menos sensible a cambios visuales. Power Automate puede guardar el adjunto en SharePoint/OneDrive interno y un job puede publicarlo en el servidor interno.
-
-## Paso final con API
-
-Cuando exista la integración oficial, conserva el mismo esquema CSV/JSON como contrato de datos y cambia únicamente el colector. Valida oficialmente las fórmulas de SLA, primera respuesta, exclusión de bots, horario laboral y definición de venta.
-
+Cuando ATOM publique el primer archivo se debe validar una vez la equivalencia de
+encabezados, fechas, booleanos y unidades. El contrato reconocido está documentado
+en `backend/README.md`.
